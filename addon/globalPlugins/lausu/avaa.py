@@ -75,6 +75,10 @@ LETTER_NAMES = {"A": "aa", "B": "bee", "C": "see", "D": "dee", "E": "ee", "F": "
                 "Ä": "ää", "Ö": "öö"}
 ACRONYM_SPELLED = {"EU", "USA", "YK", "ALV", "VR", "SAK", "EK", "THL", "HSL", "PDF", "USB", "TV", "VTT"}
 ACRONYM_WORD = {k: v for k, v in ACRONYM_WORD.items() if v}
+# Konsonanttiin päättyvä kirjaimen nimi taipuu ä-loppuisesta vartalosta: THL:n -> ällän,
+# VR:llä -> ärrällä. Vokaalialkuinen pääte korvaa vartalon ä:n (THL:ää -> ällää).
+LETTER_STEMS = {"äf": "äffä", "äl": "ällä", "äm": "ämmä", "än": "ännä", "är": "ärrä", "äs": "ässä",
+                "äks": "äksä"}
 
 # Per-yksikkö: 3 €/kk, 50 km/h. Jakoviivan jälkeinen aikayksikkö luetaan inessiivissä
 # (kolme euroa kuukaudessa). Muut jakoviivat jäävät ennalleen (3 €/kpl).
@@ -330,7 +334,15 @@ class Avaaja:
         raw, suffix = m.group(1), m.group(2) or ""
         if raw in ACRONYM_WORD:
             return ACRONYM_WORD[raw] + suffix
-        return " ".join(LETTER_NAMES[c] for c in raw) + suffix
+        names = [LETTER_NAMES[c] for c in raw]
+        stem = LETTER_STEMS.get(names[-1])
+        if suffix and stem:
+            # Takavokaalinen pääte (THL:ssa) ei sovi ä-vartaloon: ennalleen.
+            if re.search("[aou]", suffix):
+                return None
+            names[-1] = stem[:-1] + suffix if suffix[0] in "aeiouyäö" else stem + suffix
+            suffix = ""
+        return " ".join(names) + suffix
 
     def _abbr(self, m: re.Match, text: str) -> str | None:
         raw = m.group(1)

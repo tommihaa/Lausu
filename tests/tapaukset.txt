@@ -224,3 +224,14 @@ rivi 3, sarake 4	rivi kolme, sarake neljä
 5 min sitten	viisi minuuttia sitten
 klo 7.00 herätys	kello seitsemän herätys
 11:47	11:47	# kellonaika ilman sanaa klo: ennalleen (TalkBack 25.10.2026)
+# Konsonanttiin päättyvän kirjaimen taivutus (korjaus 25.10.2026, ennen "äln", "ärllä", "äfnä")
+THL:n suositus	tee hoo ällän suositus
+VR:llä	vee ärrällä
+PDF:nä	pee dee äffänä
+HSL:n	hoo äs ällän
+THL:ää	tee hoo ällää	# vokaalialkuinen pääte korvaa vartalon ä:n
+HSL:ään	hoo äs ällään
+THL	tee hoo äl	# ilman päätettä perusmuoto
+THL:ssa	THL:ssa	# takavokaalinen pääte ei sovi ä-vartaloon: ennalleen
+VR:lla	VR:lla	# takavokaalinen pääte: ennalleen
+EU:n	ee uun	# vokaaliin päättyvä kirjain: pääte suoraan kuten ennen

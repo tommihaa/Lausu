@@ -33,10 +33,12 @@ KUVIOT = [
     "{n} €/{per}", "{n},50 €/{per}", "{n} km/{per}", "{n} m/{per}", "{n} vrk", "{n} kk:{suf}",
     "{d} heinäkuuta", "{d} lokakuuta {y}", "{n} heinäkuuta",
     "{n}/{m}/{n}", "{n},5/{m}", "{n}/{m}:{suf}", "Heitto {n}/{m}",
+    "THL:{suf}", "VR:{suf}", "PDF:{suf}", "HSL:{suf}", "SAK:{suf}", "USB:{suf}", "THL",
 ]
 PER = ["kk", "vrk", "h", "min", "s", "kpl", "snt", "kk:n", "hh"]
 SUFFIKSIT = ["n", "a", "ä", "ta", "ttä", "een", "ään", "aan", "seen", "lle", "lla", "ssa", "sta",
-             "ksi", "na", "s", "nnen", "nteen", "sen", "luvulla", "vuotias", "x"]
+             "ksi", "na", "s", "nnen", "nteen", "sen", "luvulla", "vuotias", "x",
+             "ää", "llä", "nä", "ssä", "ltä", "hen"]
 ALUT = ["", "", "Hän näki", "En nähnyt", "Rakastan", "Odotin", "Ostin", "Tänään on", "Sivu",
         "Autoimme", "Kävin", "Juna saapuu", "Hinta oli", "Se maksoi"]
 LOPUT = ["", ".", ",", "?", " ja", " mennessä.", " Seuraava", " (noin)"]

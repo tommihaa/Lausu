@@ -142,6 +142,9 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
             'Z' to "tseta", 'Ä' to "ää", 'Ö' to "öö")
         private val ACRONYM_SPELLED = setOf("EU", "USA", "YK", "ALV", "VR", "SAK", "EK", "THL", "HSL",
             "PDF", "USB", "TV", "VTT")
+        // Konsonanttiin päättyvän kirjaimen nimen ä-loppuinen vartalo (THL:n -> ällän).
+        private val LETTER_STEMS = mapOf("äf" to "äffä", "äl" to "ällä", "äm" to "ämmä", "än" to "ännä",
+            "är" to "ärrä", "äs" to "ässä", "äks" to "äksä")
 
         // Kaksoispistepäätteen sijat yleisimmästä alkaen. Pääte hyväksytään vain, jos
         // generoitu muoto todella päättyy siihen (5:ään hylätään, koska viiteen ≠ -ään).
@@ -379,11 +382,19 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
 
     private fun sign(s: String?) = if (s != null) "miinus " else ""
 
-    private fun acronym(m: MatchResult, @Suppress("UNUSED_PARAMETER") text: String): Korvaus {
+    private fun acronym(m: MatchResult, @Suppress("UNUSED_PARAMETER") text: String): Korvaus? {
         val raw = m.group(1)
-        val suffix = m.group(2) ?: ""
+        var suffix = m.group(2) ?: ""
         ACRONYM_WORD[raw]?.let { return Korvaus(it + suffix) }
-        return Korvaus(raw.map { LETTER_NAMES.getValue(it) }.joinToString(" ") + suffix)
+        val names = raw.map { LETTER_NAMES.getValue(it) }.toMutableList()
+        val stem = LETTER_STEMS[names.last()]
+        if (suffix.isNotEmpty() && stem != null) {
+            // Takavokaalinen pääte (THL:ssa) ei sovi ä-vartaloon: ennalleen.
+            if (suffix.any { it in "aou" }) return null
+            names[names.lastIndex] = if (suffix[0] in "aeiouyäö") stem.dropLast(1) + suffix else stem + suffix
+            suffix = ""
+        }
+        return Korvaus(names.joinToString(" ") + suffix)
     }
 
     private fun abbr(m: MatchResult, text: String): String? {
