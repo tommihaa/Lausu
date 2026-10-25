@@ -275,7 +275,28 @@ Googleen (`Kohde.kt`).
   Googleen kokeen jälkeen. Järjestelmän oletusmoottori on yhä Google, eli Lausua ei ole valittu
   tabletilla puhemoottoriksi.
 - Lausu+Samsungin äänet (samat viisi lausetta) ovat tulossivulla sarakkeessa "Lausu (Samsung)".
-  Tulos kirjataan tähän kuuntelun jälkeen.
+
+### Tulos: Lausu+Samsung (Tommi 25.10.2026)
+
+Oikein merkittyjä on 12/13. Puhelinnumero jäi merkitsemättä, mutta kuulohavainto on sama kuin
+odotettu muoto ("nolla neljä nolla, yksi kaksi kolme, neljä viisi kuusi seitsemän"). Näin luettuna
+tulos on 13/13. Samsung suoraan sai 4/13, joten kerros korjasi Samsungilla kaikki yhdeksän
+virhettä: illatiivi, allatiivi, tuhannet, raha, puhelin, järjestysluku, miinus, väli ja lyhenne.
+Kohta, jonka Samsung luki itse oikein, ei huonontunut.
+
+| Moottori | Oikein 13:sta (merkitsemätön luettu kuulohavainnosta) |
+|---|---|
+| Google suoraan | 10 (lisäksi 1 osittain) |
+| Lausu (Google) | 13 |
+| Samsung suoraan | 4 |
+| Lausu (Samsung) | 13 |
+
+Tulossivun muissa sarakkeissa arviot ovat samat kuin ensimmäisessä kirjauksessa.
+
+**Mitä tämä kertoo:** kerroksen avattu teksti kuuluu oikein kummallakin moottorilla, eli tulos
+ei riipu siitä, mitä moottori itse osaa. Samsungilla Lausun hyöty on suurin (4 → 13) ja
+Googlella pienempi (10 → 13). Otos on edelleen viisi lausetta, ja kummastakin moottorista on
+kuunneltu vain oletusääni.
 - Sivuhavainto: ennen uuden version asennusta vanhan moottorin kalibrointi Googlea vasten
   aikakatkaistiin kerran (prosessi oli ollut käynnissä noin puoli tuntia). Uudelleenkäynnistys
   korjasi sen. Syytä ei selvitetty.
