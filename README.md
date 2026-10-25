@@ -33,10 +33,11 @@ Raportti: [docs/KOKEILU-2026-10-25.md](docs/KOKEILU-2026-10-25.md).
 
 ## Tila
 
-Kokeiluversio 0.1.0. Kerros ja NVDA-kytkentä on testattu tavallisessa Pythonissa NVDA:n
+Kokeiluversio 0.1.1. Kerros ja NVDA-kytkentä on testattu tavallisessa Pythonissa NVDA:n
 moduulit tyngiksi korvaten. Lisäosa on ajettu NVDA 2026.2:ssa muistiota vasten
 (docs/KOKEILU-2026-10-25.md › NVDA-ajo): se latautui, luvut avautuivat ja päälle/pois-komento
-toimi. Selaintila on ajettu kerran (Superjatsi Chromessa). Kytkentä käyttää
+toimi. Selaintila on ajettu Chromessa Superjatsilla, Jakolla, Yle Uutisilla, Wikipedialla,
+Verkkokauppa.comilla ja Ilmatieteen laitoksen sivulla (KOKEILU › Laajempi selaintila-ajo). Kytkentä käyttää
 NVDA:n puhesekvenssin suodatinta (`speech.extensions.filter_speechSequence`), joka on
 NVDA 2024.2:sta alkaen.
 
