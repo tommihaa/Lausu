@@ -1,0 +1,116 @@
+"""Avauskerroksen testit. Ajo: python -X utf8 tests/test_avaa.py
+
+Tapaus on (syöte, odotettu tulos). Odotettu == syöte tarkoittaa, että kerroksen
+pitää jättää kohta ennalleen (ei arvailua).
+"""
+import sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent / "addon" / "globalPlugins" / "lausu"))
+from avaa import Avaaja  # noqa: E402
+
+# Tommin 13 kuulohavaintoa (havainnot-kokoelma): tunnus, syöte, odotettu.
+HAVAINNOT = [
+    ("illatiivi", "saapuu 5:een mennessä", "saapuu viiteen mennessä"),
+    ("allatiivi", "Soitin 2:lle ihmiselle", "Soitin kahdelle ihmiselle"),
+    ("jarjestysluku", "Nouse 2. kerrokseen.", "Nouse toiseen kerrokseen."),
+    ("kello", "alkaa klo 14.30.", "alkaa kello neljätoista kolmekymmentä."),
+    ("lyhenne", "n. 5 km:n matka", "noin viiden kilometrin matka"),
+    ("miinus", "Lämpötila on −3,5 astetta.", "Lämpötila on miinus kolme pilkku viisi astetta."),
+    ("paivays", "Kokous alkaa 25.10.2026 klo",
+     "Kokous alkaa kahdeskymmenesviides lokakuuta kaksituhatta kaksikymmentäkuusi kello"),
+    ("prosentti", "eli 15 % enemmän", "eli viisitoista prosenttia enemmän"),
+    ("puhelin", "Soita numeroon 040 123 4567.",
+     "Soita numeroon nolla neljä nolla, yksi kaksi kolme, neljä viisi kuusi seitsemän."),
+    ("raha", "Kahvi maksaa 12,90 € eli", "Kahvi maksaa kaksitoista euroa yhdeksänkymmentä senttiä eli"),
+    ("tuhannet", "Paikalla on 1 347 osallistujaa.",
+     "Paikalla on tuhat kolmesataa neljäkymmentäseitsemän osallistujaa."),
+    ("vali", "Sivut 5–10 puuttuvat.", "Sivut viidestä kymmeneen puuttuvat."),
+    ("vuosikymmen", "1990-luvulla", "tuhat yhdeksänsataa yhdeksänkymmentä luvulla"),
+]
+
+CASES = [
+    # Taso 1: pääte näkyy tekstissä
+    ("2:lle", "kahdelle"), ("25:lle", "kahdellekymmenelleviidelle"),
+    ("10:ssä", "kymmenessä"), ("100:aan", "sataan"), ("1000:een", "tuhanteen"),
+    ("7:n", "seitsemän"), ("3:a", "kolmea"), ("5:ttä", "viittä"), ("12:sta", "kahdestatoista"),
+    ("21:ksi", "kahdeksikymmeneksiyhdeksi"),
+    ("347:llä", "kolmellasadalla neljälläkymmenelläseitsemällä"),
+    ("1 347:lle", "tuhannelle kolmellesadalle neljällekymmenelleseitsemälle"),
+    ("4:ään", "neljään"), ("8:aan", "kahdeksaan"), ("6:een", "kuuteen"),
+    ("5:s", "viides"), ("3:nnen", "kolmannen"), ("2:seen", "toiseen"), ("1:sen", "ensimmäisen"),
+    ("5:ään", "5:ään"),                       # väärä pääte: ei arvata
+    ("15 %:n", "viidentoista prosentin"), ("15 %:lla", "viidellätoista prosentilla"),
+    ("3 kg:n", "kolmen kilogramman"), ("2 h:ssa", "kahdessa tunnissa"),
+    # Taso 2: muoto viereisestä sanasta
+    ("2. kerros", "toinen kerros"), ("3. kertaa", "kolmatta kertaa"),
+    ("25. päivänä", "kahdentenakymmenentenäviidentenä päivänä"),
+    ("1. luokalla", "ensimmäisellä luokalla"), ("Hän tuli 2. sijalle.", "Hän tuli toiselle sijalle."),
+    ("21. päivä", "kahdeskymmenesensimmäinen päivä"), ("12. kerroksessa", "kahdennessatoista kerroksessa"),
+    ("11. hetki", "yhdestoista hetki"), ("100. kerta", "sadas kerta"),
+    ("2. riveille", "toisille riveille"),
+    ("2. luokille", "2. luokille"),                      # homografi: luokka (Pl) tai luokki (Sg)
+    ("Sivu 2. Seuraava", "Sivu 2. Seuraava"),          # iso alkukirjain: virkkeen raja vai järjestysluku?
+    ("2. ja 3. kerros", "2. ja kolmas kerros"),          # "ja" ei kerro sijaa
+    ("5 kaupungissa", "viidessä kaupungissa"), ("Kävin 3 maassa.", "Kävin kolmessa maassa."),
+    ("25 ihmiselle", "kahdellekymmenelleviidelle ihmiselle"),
+    ("3 vuoden kuluttua", "kolmen vuoden kuluttua"),
+    ("5 suuressa kaupungissa", "viidessä suuressa kaupungissa"),
+    # Taso 2, päinvastainen sääntö: lukua EI taivuteta
+    ("Söin 3 omenaa.", "Söin kolme omenaa."), ("5 suurta kaupunkia", "viisi suurta kaupunkia"),
+    ("1 347 osallistujaa", "tuhat kolmesataa neljäkymmentäseitsemän osallistujaa"),
+    ("2 500 000 asukasta", "kaksi miljoonaa viisisataatuhatta asukasta"),
+    ("Odotin 3 tuntia.", "Odotin kolme tuntia."), ("1 kerros", "yksi kerros"),
+    ("laiturilta 3 ja", "laiturilta kolme ja"), ("vuonna 1990 hän", "vuonna tuhat yhdeksänsataa yhdeksänkymmentä hän"),
+    # Epävarmat: jätetään ennalleen
+    ("En nähnyt 3 lintua.", "En nähnyt 3 lintua."),     # kiellossa kolmea lintua
+    ("1 osallistujaa", "1 osallistujaa"),
+    ("5 xyzzyä", "5 xyzzyä"),                            # tuntematon sana
+    ("3 housuissa", "3 housuissa"),                      # monikko: kolmissa housuissa, ei tueta
+    ("3,5 metrin", "3,5 metrin"),                        # desimaaliluvun taivutus ei todennettu
+    ("007", "007"), ("3-2", "3-2"),
+    ("5 Kelan", "5 Kelan"),
+    # Taso 3: vakiokuviot
+    ("-3 astetta", "miinus kolme astetta"), ("−3,5 °C", "miinus kolme pilkku viisi astetta"),
+    ("5–10 km", "viidestä kymmeneen kilometriä"), ("2020–2026", "kahdestatuhannesta kahdestakymmenestä kahteentuhanteen kahteenkymmeneenkuuteen"),
+    ("5–10 metrin", "5–10 metrin"),
+    ("1.5.", "ensimmäinen toukokuuta."), ("32.13.2026", "32.13.2026"),
+    ("klo 9", "kello yhdeksän"), ("klo 9.05", "kello yhdeksän nolla viisi"),
+    ("klo 10–12", "kello kymmenestä kahteentoista"), ("klo 14.00", "kello neljätoista"),
+    ("+358 40 123 4567", "plus kolme viisi kahdeksan, neljä nolla, yksi kaksi kolme, neljä viisi kuusi seitsemän"),
+    ("1 €", "yksi euro"), ("0,50 €", "viisikymmentä senttiä"), ("1 200 €", "tuhat kaksisataa euroa"),
+    ("12,- €", "kaksitoista euroa"),
+    ("12,90 euroa", "kaksitoista pilkku yhdeksänkymmentä euroa"),
+    ("15%", "viisitoista prosenttia"), ("1 %", "yksi prosentti"),
+    ("3,25 m", "kolme pilkku kaksikymmentäviisi metriä"), ("2,075 kg", "kaksi pilkku nolla seitsemän viisi kilogrammaa"),
+    ("5-vuotias", "viisi vuotias"), ("Linkki, 3 / 12.", "Linkki, kolme / kaksitoista."),
+    ("1 000 000", "miljoona"), ("2026", "kaksituhatta kaksikymmentäkuusi"),
+    # Lyhenteet
+    ("Esim. Kela", "Esimerkiksi Kela"), ("ks. s. 12 jne.", "katso sivu kaksitoista ja niin edelleen."),
+    ("v. 1990", "vuonna tuhat yhdeksänsataa yhdeksänkymmentä"),
+    ("Hän sanoi n. ei", "Hän sanoi n. ei"),              # n. ilman lukua ei ole "noin"
+    ("mm. tämä", "muun muassa tämä"),
+    # Kirjainlyhenteet
+    ("Esim. Kela, YLE ja", "Esimerkiksi Kela, Yle ja"), ("YLE:n uutiset", "Ylen uutiset"),
+    ("NATO:on", "Natoon"), ("EU:ssa", "ee uussa"), ("USA", "uu äs aa"), ("12 € + ALV", "kaksitoista euroa + aa äl vee"),
+    ("YLEn", "YLEn"), ("Yle", "Yle"), ("TVT", "TVT"),          # tuntematon tai jo sanana: ennalleen
+]
+
+
+def main() -> int:
+    a = Avaaja()
+    fails = 0
+    total = 0
+    for name, inp, exp in [(h[0], h[1], h[2]) for h in HAVAINNOT] + [("", c[0], c[1]) for c in CASES]:
+        total += 1
+        got = a.avaa(inp)
+        if got != exp:
+            fails += 1
+            print(f"VIRHE {name} {inp!r}\n  odotettu: {exp!r}\n  saatiin:  {got!r}")
+    print(f"{total - fails}/{total} läpi")
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

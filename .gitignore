@@ -1,0 +1,4 @@
+__pycache__/
+# Rakennuksen tulos ja välitulokset (sijat.pkl 70 Mt, ajat.json)
+/dist/
+/build/tyo/

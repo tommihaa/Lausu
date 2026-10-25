@@ -1,0 +1,13 @@
+perus	Hyvää huomenta. Tänään on sunnuntai. Ulkona sataa lunta.
+numerot	Kokous alkaa 25.10.2026 klo 14.30. Paikalla on 1 347 osallistujaa.
+taivutus	Juna lähtee laiturilta 3 ja saapuu 5:een mennessä. Soitin 2:lle ihmiselle 1990-luvulla.
+raha	Kahvi maksaa 12,90 € eli 15 % enemmän. Soita numeroon 040 123 4567.
+jarjestys	Nouse 2. kerrokseen. Lämpötila on −3,5 astetta. Sivut 5–10 puuttuvat.
+lyhenteet	Esim. Kela, YLE ja n. 5 km:n matka; ks. s. 12 jne.
+yhdyssanat	Lentokonesuihkuturbiinimoottoriapumekaanikkoaliupseerioppilas ei mahtunut näytölle.
+lainasanat	Avaa Settings ja valitse Bluetooth. Lataa päivitys GitHubista.
+kysymys	Haluatko tallentaa muutokset ennen sulkemista?
+ruudunlukija	Painike, Tallenna. Valintaruutu, Muista minut, ei valittu. Linkki, 3 / 12.
+puhekieli	Mennäänkö huomenna mökille vai jäädäänkö kotiin pelaamaan backgammonia?
+kerronta	Kun ovi viimein aukesi, kukaan ei sanonut mitään. Vasta hetken päästä joku nauroi hiljaa.
+tunne	Voitimme! En olisi ikinä uskonut. Ihan oikeasti, me voitimme.
