@@ -382,15 +382,15 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
 
     private fun sign(s: String?) = if (s != null) "miinus " else ""
 
-    private fun acronym(m: MatchResult, @Suppress("UNUSED_PARAMETER") text: String): Korvaus? {
+    private fun acronym(m: MatchResult, @Suppress("UNUSED_PARAMETER") text: String): Korvaus {
         val raw = m.group(1)
         var suffix = m.group(2) ?: ""
         ACRONYM_WORD[raw]?.let { return Korvaus(it + suffix) }
         val names = raw.map { LETTER_NAMES.getValue(it) }.toMutableList()
         val stem = LETTER_STEMS[names.last()]
         if (suffix.isNotEmpty() && stem != null) {
-            // Takavokaalinen pääte (THL:ssa) ei sovi ä-vartaloon: ennalleen.
-            if (suffix.any { it in "aou" }) return null
+            // Takavokaalinen pääte (THL:ssa) muutetaan ä-vartaloon sopivaksi: ällässä.
+            suffix = suffix.replace('a', 'ä').replace('o', 'ö').replace('u', 'y')
             names[names.lastIndex] = if (suffix[0] in "aeiouyäö") stem.dropLast(1) + suffix else stem + suffix
             suffix = ""
         }

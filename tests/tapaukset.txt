@@ -232,6 +232,7 @@ HSL:n	hoo äs ällän
 THL:ää	tee hoo ällää	# vokaalialkuinen pääte korvaa vartalon ä:n
 HSL:ään	hoo äs ällään
 THL	tee hoo äl	# ilman päätettä perusmuoto
-THL:ssa	THL:ssa	# takavokaalinen pääte ei sovi ä-vartaloon: ennalleen
-VR:lla	VR:lla	# takavokaalinen pääte: ennalleen
+THL:ssa	tee hoo ällässä	# takavokaalinen pääte harmonisoidaan (Tommin päätös 25.10.2026)
+VR:lla	vee ärrällä	# takavokaalinen pääte harmonisoidaan
+PDF:aan	pee dee äffään	# vokaalialkuinen ja takavokaalinen pääte
 EU:n	ee uun	# vokaaliin päättyvä kirjain: pääte suoraan kuten ennen

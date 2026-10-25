@@ -76,9 +76,11 @@ LETTER_NAMES = {"A": "aa", "B": "bee", "C": "see", "D": "dee", "E": "ee", "F": "
 ACRONYM_SPELLED = {"EU", "USA", "YK", "ALV", "VR", "SAK", "EK", "THL", "HSL", "PDF", "USB", "TV", "VTT"}
 ACRONYM_WORD = {k: v for k, v in ACRONYM_WORD.items() if v}
 # Konsonanttiin päättyvä kirjaimen nimi taipuu ä-loppuisesta vartalosta: THL:n -> ällän,
-# VR:llä -> ärrällä. Vokaalialkuinen pääte korvaa vartalon ä:n (THL:ää -> ällää).
+# VR:llä -> ärrällä. Vokaalialkuinen pääte korvaa vartalon ä:n (THL:ää -> ällää). Takavokaalinen
+# pääte harmonisoidaan etuvokaaliseksi (THL:ssa -> ällässä), Tommin päätös 25.10.2026.
 LETTER_STEMS = {"äf": "äffä", "äl": "ällä", "äm": "ämmä", "än": "ännä", "är": "ärrä", "äs": "ässä",
                 "äks": "äksä"}
+FRONT_VOWELS = str.maketrans("aou", "äöy")
 
 # Per-yksikkö: 3 €/kk, 50 km/h. Jakoviivan jälkeinen aikayksikkö luetaan inessiivissä
 # (kolme euroa kuukaudessa). Muut jakoviivat jäävät ennalleen (3 €/kpl).
@@ -337,9 +339,8 @@ class Avaaja:
         names = [LETTER_NAMES[c] for c in raw]
         stem = LETTER_STEMS.get(names[-1])
         if suffix and stem:
-            # Takavokaalinen pääte (THL:ssa) ei sovi ä-vartaloon: ennalleen.
-            if re.search("[aou]", suffix):
-                return None
+            # Takavokaalinen pääte (THL:ssa) muutetaan ä-vartaloon sopivaksi: ällässä.
+            suffix = suffix.translate(FRONT_VOWELS)
             names[-1] = stem[:-1] + suffix if suffix[0] in "aeiouyäö" else stem + suffix
             suffix = ""
         return " ".join(names) + suffix
