@@ -48,6 +48,34 @@ UNITS = {"km": "kilometri", "m": "metri", "cm": "senttimetri", "mm": "millimetri
 # Muut taivutettavat apusanat.
 WORDS = ["euro", "sentti", "sivu", "kello", "prosentti", "nolla"]
 
+# Verbit, joiden objekti on aina partitiivissa (rakastan kolmea koiraa). Lauseessa, jossa
+# jokin näistä on, luku + partitiivisana jätetään ennalleen, koska perusmuoto olisi väärä.
+# Mukana vain verbit, joilla tulosobjektia (kolme) ei käytetä: katsoa, hoitaa ja käsitellä
+# puuttuvat, koska "katsoin 3 elokuvaa" voi olla kumpaa tahansa.
+PARTITIVE_VERBS = [
+    "rakastaa", "vihata", "inhota", "pelätä", "odottaa", "auttaa", "kiittää", "onnitella",
+    "ajatella", "miettiä", "pohtia", "ihailla", "kunnioittaa", "arvostaa", "halata", "suudella",
+    "koskettaa", "katsella", "kuunnella", "etsiä", "tukea", "vastustaa", "puolustaa", "uhata",
+    "häiritä", "kohdella", "palvella", "seurata", "edustaa", "kaivata", "ikävöidä", "sääliä",
+    "kiusata", "tervehtiä", "lohduttaa", "rohkaista", "jahdata", "muistella", "harrastaa",
+    "rangaista", "johtaa", "opettaa",
+]
+VERB_TAGS = (
+    [f"Act+Ind+{t}+{p}" for t in ("Prs", "Prt") for p in ("Sg1", "Sg2", "Sg3", "Pl1", "Pl2", "Pl3")]
+    + [f"Act+Cond+{p}" for p in ("Sg1", "Sg2", "Sg3", "Pl1", "Pl2", "Pl3")]
+    + ["Act+Ind+Prs+ConNeg", "Act+Cond+ConNeg", "Act+Imprt+ConNeg", "Act+Imprt+Sg2",
+       "Act+Imprt+Sg3", "Act+Imprt+Pl1", "Act+Imprt+Pl2", "Act+Imprt+Pl3", "Act+Pot+Sg3",
+       "Pss+Ind+Prs+Pe4", "Pss+Ind+Prt+Pe4", "Pss+Cond+Pe4", "Act+InfA+Sg+Lat",
+       "Act+InfE+Sg+Ine", "Act+InfE+Sg+Ins"]
+    + [f"Act+InfMa+Sg+{c}" for c in ("Ill", "Ine", "Ela", "Ade", "Abe")]
+    + [f"{p}+{n}+{c}" for p in ("Act+PrsPrc", "Act+PrfPrc", "Pss+PrsPrc", "Pss+PrfPrc", "AgPrc")
+       for n in NUMS for c in ("Nom", "Gen", "Par")]
+)
+# Kesto- ja kertasanat: "odotin 3 tuntia" on ajanilmaus, jossa luku on perusmuodossa
+# partitiiviverbistä riippumatta. Näiden edellä luku avataan kuten ennenkin.
+MEASURE_NOUNS = ["sekunti", "minuutti", "tunti", "päivä", "viikko", "kuukausi", "vuosi",
+                 "vuorokausi", "vuosikymmen", "vuosisata", "kerta", "hetki", "ilta", "yö", "aamu"]
+
 
 def gen(analysis: str) -> str | None:
     res = uralicApi.generate(analysis, "fin")
@@ -73,7 +101,14 @@ def build_numerals() -> dict:
         # Vain yksikkö: monikossa generaattori antaa ensimmäisenä arkaaisia
         # rinnakkaismuotoja (astehitten), eikä kerros tarvitse niitä.
         "words": {l: paradigm(l, "N", ["Sg"]) for l in set(UNITS.values()) | set(WORDS)},
+        "partitiiviverbit": sorted({f for v in PARTITIVE_VERBS for t in VERB_TAGS
+                                    if (f := gen(f"{v}+V+{t}"))}),
+        "mittasanat": sorted({f for n in MEASURE_NOUNS if (f := gen(f"{n}+N+Sg+Par"))}),
     }
+    # Jokaisesta verbistä on saatava ainakin preesens, muuten lemma on kirjoitettu väärin.
+    for v in PARTITIVE_VERBS:
+        assert gen(f"{v}+V+Act+Ind+Prs+Sg1"), v
+    assert len(data["mittasanat"]) == len(MEASURE_NOUNS), data["mittasanat"]
     # Tarkistus: jokaisella perusosalla on oltava perusmuoto, muuten taulukko on rikki.
     for kind in ("card", "ord"):
         for k, p in data[kind].items():

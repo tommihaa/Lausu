@@ -60,6 +60,8 @@ ABBR = {
 # Nämä voivat päättää virkkeen, jolloin piste on myös virkkeen loppu.
 SENTENCE_FINAL_ABBR = {"jne.", "ym.", "yms.", "tms."}
 NEGATION = {"en", "et", "ei", "emme", "ette", "eivät", "älä", "älkää"}
+# Liitepartikkelit, jotka irrotetaan ennen verbihakua (rakastankin, odotatko).
+CLITIC = re.compile(r"(?:kin|kaan|kään|ko|kö|han|hän|pa|pä)$")
 
 # Kirjainlyhenteet. Sanana luettavat kirjoitetaan sanaksi (YLE -> Yle), jotta syntetisaattori
 # ei tavaa tai liimaa niitä (Harri: "YLELE"). Kirjaimittain luettavat kirjoitetaan kirjainten
@@ -91,6 +93,8 @@ class Avaaja:
         self.ord_atoms = {(int(k) if k.isdigit() else k): v for k, v in d["ord"].items()}
         self.units = d["units"]
         self.words = d["words"]
+        self.partitive_verbs = frozenset(d["partitiiviverbit"])
+        self.measure_words = frozenset(d["mittasanat"])
         # Sijataulukko pakattuna sanapuuna (1,8 Mt levyllä, noin 5 Mt muistissa).
         self.sijat = Sanapuu.lataa(data_dir / "sijat.dawg")
         unit_alt = "|".join(re.escape(u) for u in sorted(self.units, key=len, reverse=True)
@@ -254,6 +258,17 @@ class Avaaja:
         clause = re.split(r"[.!?;:,]", text[:start])[-1]
         return any(w.lower() in NEGATION for w in re.findall(rf"[{LETTER}]+", clause))
 
+    def partitive_verb(self, text: str, start: int, end: int) -> bool:
+        """Onko luvun lauseessa (ennen tai jälkeen: 3 koiraa rakastava) verbi, jonka
+        objekti on aina partitiivissa. Luvun perässä oleva sana itse ohitetaan, koska
+        laskettava sana voi olla verbin kanssa samannäköinen (3 seuraa, 3 uhkaa)."""
+        after = re.sub(rf"^{SP}*[{LETTER}]+", "", text[end:])
+        clause = re.split(r"[.!?;:,]", text[:start])[-1] + " " + re.split(r"[.!?;:,]", after)[0]
+        for w in re.findall(rf"[{LETTER}]+", clause.lower()):
+            if w in self.partitive_verbs or CLITIC.sub("", w) in self.partitive_verbs:
+                return True
+        return False
+
     def cardinal_case(self, n: int | None, text: str, start: int, end: int) -> str | None:
         """Perusluvun sija seuraavan sanan perusteella, tai None jos epävarma.
         n=None tarkoittaa desimaalilukua (vain perusmuoto sallitaan)."""
@@ -266,8 +281,13 @@ class Avaaja:
         for num, case in readings:
             if case == "Par" and num == "Sg":
                 # Partitiivisubstantiivin edellä luku on perusmuodossa (1 347 osallistujaa),
-                # paitsi kiellon jälkeen (en nähnyt kolmea lintua): silloin ei arvata.
-                cases.add(None if n == 1 or self.negated(text, start) else "Sg+Nom")
+                # paitsi kiellon jälkeen (en nähnyt kolmea lintua) ja partitiiviverbin
+                # objektina (rakastan kolmea koiraa): silloin ei arvata. Kesto ja kerta
+                # (odotin 3 tuntia) ovat ajanilmauksia, joissa perusmuoto pätee verbistä riippumatta.
+                word = re.match(rf"{SP}*([{LETTER}]+)", text[end:]).group(1)
+                governed = (self.partitive_verb(text, start, end)
+                            and word.lower() not in self.measure_words)
+                cases.add(None if n == 1 or self.negated(text, start) or governed else "Sg+Nom")
             elif case == "Nom":
                 cases.add("Sg+Nom")
             elif num == "Sg":

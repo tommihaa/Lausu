@@ -65,6 +65,18 @@ CASES = [
     ("laiturilta 3 ja", "laiturilta kolme ja"), ("vuonna 1990 hän", "vuonna tuhat yhdeksänsataa yhdeksänkymmentä hän"),
     # Epävarmat: jätetään ennalleen
     ("En nähnyt 3 lintua.", "En nähnyt 3 lintua."),     # kiellossa kolmea lintua
+    # Partitiiviverbi: objekti olisi kolmea koiraa, joten luku jää ennalleen
+    ("Rakastan 3 koiraa.", "Rakastan 3 koiraa."),
+    ("Autoimme 25 perhettä.", "Autoimme 25 perhettä."),
+    ("Odotamme 2 vierasta.", "Odotamme 2 vierasta."),
+    ("Hän on auttanut 4 opiskelijaa.", "Hän on auttanut 4 opiskelijaa."),
+    ("3 koiraa rakastava mies", "3 koiraa rakastava mies"),  # verbi luvun jälkeen
+    ("Rakastatko 3 koiraa?", "Rakastatko 3 koiraa?"),        # liitepartikkeli
+    # ...mutta ei saa koskea: kesto ja kerta, muu lause, laskettava sana verbin näköinen
+    ("Odotin 5 minuuttia.", "Odotin viisi minuuttia."),
+    ("Autoin häntä 3 kertaa.", "Autoin häntä kolme kertaa."),
+    ("Rakastin, ostin 3 omenaa.", "Rakastin, ostin kolme omenaa."),
+    ("Kaupungissa on 3 seuraa.", "Kaupungissa on kolme seuraa."),
     ("1 osallistujaa", "1 osallistujaa"),
     ("5 xyzzyä", "5 xyzzyä"),                            # tuntematon sana
     ("3 housuissa", "3 housuissa"),                      # monikko: kolmissa housuissa, ei tueta
