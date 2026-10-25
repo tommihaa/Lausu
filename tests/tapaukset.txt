@@ -130,6 +130,13 @@ Toimitusmaksu 3 €/kk.	Toimitusmaksu kolme euroa kuukaudessa.	# per-yksikkö in
 2,075 kg	kaksi pilkku nolla seitsemän viisi kilogrammaa
 5-vuotias	viisi vuotias
 Linkki, 3 / 12.	Linkki, kolme / kaksitoista.
+Liikkuminen. 2/5 ryhmässä.	Liikkuminen. kaksi kautta viisi ryhmässä.	# TalkBack 25.10.2026: ennen "kaksi/5"
+Heitto 1/3	Heitto yksi kautta kolme	# Superjatsi SJ-5: Google luki kolmasosana
+viikolla 43/2026	viikolla neljäkymmentäkolme kautta kaksituhatta kaksikymmentäkuusi
+2024/10/05	2024/10/05	# ketju: ennalleen, ei puoliksi
+3/4:n	3/4:n	# kaksoispistepääte: ennalleen
+01/02	01/02	# etunolla
+1,5/2	1,5/2	# desimaaliluku kauttaviivan edellä: ennalleen
 1 000 000	miljoona
 2026	kaksituhatta kaksikymmentäkuusi
 # Lyhenteet

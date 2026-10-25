@@ -126,13 +126,17 @@ class Avaaja:
              self._money),
             (re.compile(rf"{NB}(\d+)(?:{SP}?[–—]{SP}?|-)(\d+)(?![\d,:]|\.\d)"),
              self._range),
+            # Kauttaviiva kahden kokonaisluvun välissä: 2/5 -> kaksi kautta viisi (vaihe, arvosana,
+            # osamäärä). Ketju (2024/10/05) ja kaksoispistepääte (3/4:n) jäävät ennalleen.
+            (re.compile(rf"{NB}(\d+)/(\d+)(?![\w/:]|[.,]\d)"), self._slash),
             (re.compile(rf"{NB}({MINUS})?({INT})(?:,(\d+))?{SP}?({unit_alt})"
                         rf"(?::([{LOWER}]+))?(?![\w%°])"), self._unit),
             (re.compile(rf"{NB}({INT})-([{LOWER}]+)"), self._hyphen),
             (re.compile(rf"{NB}({INT}):([{LOWER}]+)(?![\w])"), self._colon),
             (re.compile(rf"{NB}(\d+)\.(?={SP}+[{LOWER}])"), self._ordinal),
-            (re.compile(rf"{NB}({MINUS})?(\d+),(\d+)(?![\d,]|\.\d)"), self._decimal),
-            (re.compile(rf"{NB}({MINUS})?({INT})(?![\w]|[,.:]\d|:)"), self._integer),
+            (re.compile(rf"{NB}({MINUS})?(\d+),(\d+)(?![\d,]|\.\d|/\d)"), self._decimal),
+            # Kauttaviivan edellä luku jätetään, jos _slash hylkäsi sen: puoliksi avattu "kolme/4" on pahempi.
+            (re.compile(rf"{NB}({MINUS})?({INT})(?![\w]|[,.:]\d|:|/\d)"), self._integer),
         ]
 
     # ---------- lukusanojen kokoaminen taulukosta ----------
@@ -474,6 +478,13 @@ class Avaaja:
             if re.fullmatch(pattern, suffix) and form and form.endswith(suffix):
                 return f"Sg+{case}"
         return None
+
+    def _slash(self, m: re.Match, text: str) -> str | None:
+        a, b = m.group(1), m.group(2)
+        if any(len(x) > 1 and x.startswith("0") for x in (a, b)):
+            return None        # 01/02: etunolla, ei arvata
+        x, y = self.card(int(a)), self.card(int(b))
+        return x and y and f"{x} kautta {y}"
 
     def _hyphen(self, m: re.Match, text: str) -> str | None:
         # 1990-luvulla, 5-vuotias: yhdyssanan alkuosa on aina perusmuodossa.

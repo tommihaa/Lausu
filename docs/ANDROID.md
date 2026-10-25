@@ -175,12 +175,17 @@ tapaukselle, jota sääntö ei saa koskea (`tests/tapaukset.txt`, 132 tapausta).
 laajennettiin uusiin kuvioihin, ja 30 000 syötettä antoi saman tuloksen Pythonissa, JVM:llä ja
 Pixelillä.
 
-Lokista näkyi myös kohtia, joita Tommi ei maininnut. Niitä ei ole korjattu:
+Lokista näkyi myös kohtia, joita Tommi ei maininnut:
 
-- **Jakoviivalla merkitty "x / y" avautuu puoliksi.** "2/5 ryhmässä" tuli muotoon "kaksi/5
-  ryhmässä", ja "viikolla 43/2026" tuli muotoon "viikolla neljäkymmentäkolme/2026". Jälkimmäinen
-  luku jää avaamatta, koska luvun alun sääntö ei salli edellä kauttaviivaa. Tämä liittyy
-  Superjatsin SJ-5-esimerkkiin, jossa "1/3" kuului kolmasosana.
+- **Kauttaviiva avautui puoliksi** (korjattu). "2/5 ryhmässä" tuli muotoon "kaksi/5 ryhmässä",
+  koska luvun alun sääntö ei salli edellä kauttaviivaa. Tommi tulkitsi merkinnän vaiheeksi,
+  arvosanaksi tai osamääräksi ja hyväksyi luennan "kaksi kautta viisi". Nyt kahden kokonaisluvun
+  välinen kauttaviiva luetaan "kautta". Ketju (2024/10/05), kaksoispistepääte (3/4:n), etunolla
+  ja desimaaliluku (1,5/2) jäävät kokonaan ennalleen eivätkä puoliksi. Sama sääntö korjaa
+  Superjatsin SJ-5-esimerkin: "Heitto 1/3" kuuluu "heitto yksi kautta kolme" eikä kolmasosana.
+
+Seuraavia ei ole korjattu:
+
 - **Kellonaika ilman sanaa "klo"** ("11:47", "22:44") jää ennalleen, ja Googlen ääni lukee sen
   itse.
 - **Hinta kahdessa osassa.** Verkkokauppa antoi hinnan TalkBackille kahtena kohtana ("649," ja

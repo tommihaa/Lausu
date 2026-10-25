@@ -77,12 +77,16 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
                 ignoreCase = true), { m, _ -> time(m)?.let(::Korvaus) }),
             passi(re("""$NB($MINUS)?($INT)(?:,($D{2}|-))?$SP?€(?![$W:])"""), ::money),
             passi(re("""$NB($D+)(?:$SP?[–—]$SP?|-)($D+)(?![$D,:]|\.$D)"""), ::range),
+            // Kauttaviiva kahden kokonaisluvun välissä: 2/5 -> kaksi kautta viisi (vaihe, arvosana,
+            // osamäärä). Ketju (2024/10/05) ja kaksoispistepääte (3/4:n) jäävät ennalleen.
+            passi(re("""$NB($D+)/($D+)(?![$W/:]|[.,]$D)"""), { m, _ -> slash(m)?.let(::Korvaus) }),
             passi(re("""$NB($MINUS)?($INT)(?:,($D+))?$SP?($unitAltIlmanEuroa)(?::([$LOWER]+))?(?![$W%°])"""), ::unit),
             passi(re("""$NB($INT)-([$LOWER]+)"""), { m, _ -> hyphen(m)?.let(::Korvaus) }),
             passi(re("""$NB($INT):([$LOWER]+)(?![$W])"""), { m, _ -> colon(m)?.let(::Korvaus) }),
             passi(re("""$NB($D+)\.(?=$SP+[$LOWER])"""), { m, t -> ordinalPass(m, t)?.let(::Korvaus) }),
-            passi(re("""$NB($MINUS)?($D+),($D+)(?![$D,]|\.$D)"""), { m, t -> decimalPass(m, t)?.let(::Korvaus) }),
-            passi(re("""$NB($MINUS)?($INT)(?![$W]|[,.:]$D|:)"""), { m, t -> integer(m, t)?.let(::Korvaus) }),
+            passi(re("""$NB($MINUS)?($D+),($D+)(?![$D,]|\.$D|/$D)"""), { m, t -> decimalPass(m, t)?.let(::Korvaus) }),
+            // Kauttaviivan edellä luku jätetään, jos slash hylkäsi sen: puoliksi avattu "kolme/4" on pahempi.
+            passi(re("""$NB($MINUS)?($INT)(?![$W]|[,.:]$D|:|/$D)"""), { m, t -> integer(m, t)?.let(::Korvaus) }),
         )
     }
 
@@ -523,6 +527,15 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
             if (pattern.matches(suffix) && !form.isNullOrEmpty() && form.endsWith(suffix)) return "Sg+$case"
         }
         return null
+    }
+
+    private fun slash(m: MatchResult): String? {
+        val a = m.group(1)
+        val b = m.group(2)
+        if (listOf(a, b).any { it.length > 1 && it.startsWith("0") }) return null // 01/02: etunolla, ei arvata
+        val x = card(luku(a)) ?: return null
+        val y = card(luku(b)) ?: return null
+        return "$x kautta $y"
     }
 
     private fun hyphen(m: MatchResult): String? {
