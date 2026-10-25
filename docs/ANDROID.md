@@ -183,6 +183,7 @@ Lokista näkyi myös kohtia, joita Tommi ei maininnut:
   välinen kauttaviiva luetaan "kautta". Ketju (2024/10/05), kaksoispistepääte (3/4:n), etunolla
   ja desimaaliluku (1,5/2) jäävät kokonaan ennalleen eivätkä puoliksi. Sama sääntö korjaa
   Superjatsin SJ-5-esimerkin: "Heitto 1/3" kuuluu "heitto yksi kautta kolme" eikä kolmasosana.
+  Tommi kuunteli korjauksen TalkBackilla ja totesi sen toimivaksi (25.10.2026).
 
 Seuraavia ei ole korjattu:
 
