@@ -300,3 +300,38 @@ kuunneltu vain oletusääni.
 - Sivuhavainto: ennen uuden version asennusta vanhan moottorin kalibrointi Googlea vasten
   aikakatkaistiin kerran (prosessi oli ollut käynnissä noin puoli tuntia). Uudelleenkäynnistys
   korjasi sen. Syytä ei selvitetty.
+
+## Kuuntelu: kirjainlyhenteiden taivutus (25.10.2026)
+
+Kuunneltiin kolme kerroksen korjausta: konsonanttiin päättyvän kirjaimen vartalo (THL:n),
+takavokaalisen päätteen harmonisointi (THL:ssa) ja t-alkuinen partitiivi (THL:tä). Lisäksi
+kuunneltiin yhdysmerkki, jonka kerros jättää paikalleen (EU-maat → "ee uu-maat"). Se tapaus
+ei ole testeissä.
+
+Ennen äänitystä tabletin Lausu päivitettiin. Asennettu versio (14.13) oli vanhempi kuin
+korjaukset ja luki "THL:tä" muodossa "ältä". Äänet tehtiin `Tarkistus`-äänitystilalla Lausun
+moottorilla kahdella lukijalla (Google ja Samsung, oletusäänet). Ne ovat tulossivulla
+osiossa "Kirjainlyhenteiden taivutus" (kokoelma `kirjaimet`). Lukijaksi palautettiin Google.
+
+### Tulos (Tommi 25.10.2026)
+
+Luku laskee Tommin oikein-merkinnät viidestä lauseesta.
+
+| Lause | Avattu | Lausu (Google) | Lausu (Samsung) |
+|---|---|---|---|
+| THL:n suositus koskee kaikkia. | tee hoo ällän | oikein | oikein |
+| Matkustin VR:llä Tampereelle. | vee ärrällä | oikein | oikein |
+| THL:ssa tehtiin selvitys. | tee hoo ällässä | oikein | oikein |
+| Kysyin asiaa THL:tä. | tee hoo ällää | väärin (kuului "tee hoo ällää") | väärin (sama) |
+| EU-maat sopivat asiasta. | ee uu-maat | väärin: "ee eeuu-maat" | oikein: "eeuu-maat" |
+| **Oikein** | | **3/5** | **4/5** |
+
+**Partitiivi:** ääni sanoi juuri sen, minkä kerros avasi. Väärin-merkintä koskee lausetta.
+Tommin mukaan järkevämpää olisi "tee hoo ällältä" tai "tee hoo ällästä". Koelause oli Clauden
+laatima ja kieliopiltaan virheellinen, koska "kysyä" vaatii ablatiivin (THL:ltä). Kerros
+avaa molemmat Tommin muodot jo oikein (THL:ltä → ällältä, THL:stä → ällästä). Kirjoitettua
+partitiivia se ei saa vaihtaa toiseen sijaan, koska se olisi arvailua. Partitiivisääntöä ei
+siis ole vielä kuunneltu luontevassa lauseessa.
+
+**Yhdysmerkki:** kumpikaan lukija ei lukenut sitä viivana. Google lisäsi kuitenkin ylimääräisen
+"ee":n, eli yhdysmerkillinen kirjainjono luetaan sillä väärin. Syytä ei ole selvitetty.
