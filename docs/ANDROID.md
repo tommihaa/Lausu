@@ -1,7 +1,7 @@
 # Lausu Androidille (idea 25.10.2026, ei päätös)
 
-Tila: ensimmäinen koe ajettu 25.10.2026 mittausohjelmalla, ja tie on auki. TalkBack-ajo puuttuu
-(ks. Kokeen tulos).
+Tila: ensimmäinen koe ajettu 25.10.2026 mittausohjelmalla ja TalkBackilla, ja tie on auki
+(ks. Kokeen tulos). Lausun kerros puuttuu vielä Android-moottorista.
 
 ## Miksi
 
@@ -81,9 +81,25 @@ Vastaukset kokeen neljään kysymykseen:
 4. **Äänet näkyvät.** Moottori näkee Googlen äänet (633, suomeksi 3: kaksi paikallista ja yksi
    verkkoääni) ja voi asettaa niistä yhden. Valintaa käyttäjälle ei tehty kokeeseen.
 
-Mittaamatta jäi TalkBack itse, koska se vaatii Lausun asettamista puhelimen puhemoottoriksi, ja
-se on Tommin kuittaama asetusmuutos. Mittausohjelma käyttää samaa rajapintaa kuin TalkBack, mutta
-korvin kuultava laatu ja TalkBackin oma käytös ovat vielä todentamatta.
+### TalkBack-ajo (25.10.2026)
+
+Tommi asetti Pixelissä Lausun (koe) ensisijaiseksi puhemoottoriksi ja käytti TalkBackia
+asetuksissa ja Jakon Moskassa. Kuulohavainnot:
+
+- **Ääni** kuului samalta kuin Googlen ääni.
+- **Viivettä** ei huomannut.
+- **Keskeytys** toimi, eli puhe katkesi pyyhkäistäessä.
+
+Moottorin loki samasta ajosta (159 TalkBackin lausumaa):
+
+- 122 lausumassa tuli ääntä. Ensimmäisen äänipalan mediaani oli 42 ms ja suurin 265 ms, ja suurin
+  osui ensimmäiseen lausumaan moottorin vaihdon jälkeen. Luku mitataan moottorin sisällä
+  lausuman saapumisesta, eli se ei ole sama mittari kuin mittausohjelman taulukossa.
+- 37 lausumaa jäi ilman ääntä. Osa oli TalkBackin lähettämiä tyhjiä tekstejä, ja osa keskeytettiin
+  ennen ensimmäistä palaa.
+- 15 lausumaa keskeytettiin kesken. Moottori lopetti 0,5–6,8 ms:ssa pysäytyksestä.
+- Googlen virheitä ei tullut. Kaikki lausumat tulivat kielellä `fin-FIN`, ja TalkBackin
+  puhenopeus näkyi moottorille arvona 85.
 
 ## Mitä siirtyy ja mitä kirjoitetaan uudelleen
 

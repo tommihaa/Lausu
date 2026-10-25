@@ -182,7 +182,8 @@ class ValitysPalvelu : TextToSpeechService() {
             val loppu = SystemClock.elapsedRealtimeNanos()
             val pysaytys = if (l.pysaytetty) " pysäytyksestä poistumiseen ${ms(loppu - l.pysaytysHetki)} ms" else ""
             Log.i(TAG, "lausuma ${l.id} tila=$tila ensimmäinen ääni ${syotto.ensimmainen?.let { ms(it - t0) } ?: "-"} ms," +
-                " ääntä ${syotto.tavut} tavua, kesto ${ms(loppu - t0)} ms, googlen virhe ${l.virhe}$pysaytys")
+                " ääntä ${syotto.tavut} tavua, kesto ${ms(loppu - t0)} ms, googlen virhe ${l.virhe}$pysaytys" +
+                " kieli ${request.language}-${request.country} nopeus ${request.speechRate}, teksti «$teksti»")
         }
     }
 
