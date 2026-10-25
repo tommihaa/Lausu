@@ -249,3 +249,20 @@ Suomi-EU	Suomi-EU	# yhdysmerkki vain edellä
 EU:n ja USA:n	ee uun ja uu äs aan	# ilman yhdysmerkkiä avataan kuten ennen
 EU, USA	ee uu, uu äs aa
 EU -maat	ee uu -maat	# välilyönti ennen viivaa: ei yhdysmerkki
+# Tunnistesana luvun edellä (NVDA-selaintila-ajo 25.10.2026, Jako): luku on nimi eikä määrä
+Vaihda 8♦ paikan 5 korttiin	Vaihda 8♦ paikan 5 korttiin	# ennen "paikan viiteen korttiin"
+sivun 3 kuvaan	sivun 3 kuvaan
+Katso kohdan 2 taulukkoa.	Katso kohdan 2 taulukkoa.
+Rivin 4 solussa	Rivin 4 solussa	# iso alkukirjain
+rivi 2	rivi kaksi	# ei nominia perässä: perusmuoto kuten ennen (NVDA:n taulukkoilmoitus)
+Siirry riville 4.	Siirry riville neljä.
+sivulla 3 kerrotaan	sivulla kolme kerrotaan	# verbi perässä
+Paikalla oli 1 347 osallistujaa.	Paikalla oli tuhat kolmesataa neljäkymmentäseitsemän osallistujaa.	# paikalla on adverbi, ei tunnistesana
+Kahden paikan 5 kortti	Kahden paikan 5 kortti
+Jaoin 3 korttia.	Jaoin kolme korttia.	# ilman tunnistesanaa avataan kuten ennen
+Paikkakunnan 5 kaupunkia	Paikkakunnan viisi kaupunkia	# yhdyssana ei ole tunnistesana
+# Tuhaterotin desimaaliluvussa ilman euromerkkiä (Verkkokauppa.com 25.10.2026)
+1 099,00	tuhat yhdeksänkymmentäyhdeksän pilkku nolla nolla	# ennen "1 yhdeksänkymmentäyhdeksän pilkku nolla nolla"
+12 000,75	kaksitoistatuhatta pilkku seitsemänkymmentäviisi
+Hinta 1 099,00 €.	Hinta tuhat yhdeksänkymmentäyhdeksän euroa.	# euromerkin kanssa kuten ennen
+1 099,5 talossa	1 099,5 talossa	# desimaaliluku muussa kuin perusmuodossa jää ennalleen kuten ennen

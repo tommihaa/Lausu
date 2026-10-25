@@ -89,6 +89,17 @@ FRONT_VOWELS = str.maketrans("aou", "äöy")
 PER_UNITS = ["vrk", "min", "kk", "h", "s"]
 # Kuukauden nimi luvun perässä: luku on päiväys eikä lukumäärä.
 MONTH_AFTER = re.compile(rf"{SP}+(?:{'|'.join(MONTHS)})(?![\w])", re.I)
+# Tunnistesana luvun edellä: luku on nimi eikä määrä (paikan 5 korttiin, sivun 3 kuvaan),
+# joten se ei taivu seuraavan sanan mukaan. Paikalla, paikalle ja paikalta puuttuvat, koska ne
+# ovat tavallisesti adverbejä (paikalla oli 1 347 osallistujaa).
+ID_WORDS = ["paikka", "paikan", "paikkaa", "paikassa", "paikasta", "paikkaan", "paikaksi", "paikkana",
+            "sivu", "sivun", "sivua", "sivulla", "sivulta", "sivulle", "sivussa", "sivusta",
+            "sivuun", "sivuksi", "sivuna",
+            "rivi", "rivin", "riviä", "rivillä", "riviltä", "riville", "rivissä", "rivistä",
+            "riviin", "riviksi", "rivinä",
+            "kohta", "kohdan", "kohtaa", "kohdassa", "kohdasta", "kohtaan", "kohdalla", "kohdalta",
+            "kohdalle", "kohdaksi", "kohtana"]
+ID_BEFORE = re.compile(rf"(?<![{LETTER}])(?:{'|'.join(ID_WORDS)}){SP}+$", re.I)
 
 # Kaksoispistepäätteen sijat yleisimmästä alkaen. Pääte hyväksytään vain, jos
 # generoitu muoto todella päättyy siihen (5:ään hylätään, koska viiteen ≠ -ään).
@@ -142,7 +153,7 @@ class Avaaja:
             (re.compile(rf"{NB}({INT})-([{LOWER}]+)"), self._hyphen),
             (re.compile(rf"{NB}({INT}):([{LOWER}]+)(?![\w])"), self._colon),
             (re.compile(rf"{NB}(\d+)\.(?={SP}+[{LOWER}])"), self._ordinal),
-            (re.compile(rf"{NB}({MINUS})?(\d+),(\d+)(?![\d,]|\.\d|/\d)"), self._decimal),
+            (re.compile(rf"{NB}({MINUS})?({INT}),(\d+)(?![\d,]|\.\d|/\d)"), self._decimal),
             # Kauttaviivan edellä luku jätetään, jos _slash hylkäsi sen: puoliksi avattu "kolme/4" on pahempi.
             (re.compile(rf"{NB}({MINUS})?({INT})(?![\w]|[,.:]\d|:|/\d)"), self._integer),
         ]
@@ -543,7 +554,7 @@ class Avaaja:
         sign, whole, frac = m.groups()
         if self.cardinal_case(None, text, m.start(), m.end()) != "Sg+Nom":
             return None
-        d = self.decimal(int(whole), frac)
+        d = self.decimal(self._int(whole), frac)
         return d and self._sign(sign) + d
 
     def _integer(self, m: re.Match, text: str) -> str | None:
@@ -554,6 +565,10 @@ class Avaaja:
         n = int(digits)
         # Kuukauden edellä luku on päiväys. Jos _date_named hylkäsi sen (32 heinäkuuta), ei arvata.
         if MONTH_AFTER.match(text[m.end():]):
+            return None
+        # Tunnistesanan perässä nominin edellä luku jää ennalleen. Muualla (rivi 2, sivulla 3 kerrotaan)
+        # se luetaan perusmuodossa kuten ennenkin.
+        if ID_BEFORE.search(text[:m.start()]) and self.context(text, m.end())[0] == "nomini":
             return None
         case = self.cardinal_case(n, text, m.start(), m.end())
         if case is None:

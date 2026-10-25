@@ -84,7 +84,7 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
             passi(re("""$NB($INT)-([$LOWER]+)"""), { m, _ -> hyphen(m)?.let(::Korvaus) }),
             passi(re("""$NB($INT):([$LOWER]+)(?![$W])"""), { m, _ -> colon(m)?.let(::Korvaus) }),
             passi(re("""$NB($D+)\.(?=$SP+[$LOWER])"""), { m, t -> ordinalPass(m, t)?.let(::Korvaus) }),
-            passi(re("""$NB($MINUS)?($D+),($D+)(?![$D,]|\.$D|/$D)"""), { m, t -> decimalPass(m, t)?.let(::Korvaus) }),
+            passi(re("""$NB($MINUS)?($INT),($D+)(?![$D,]|\.$D|/$D)"""), { m, t -> decimalPass(m, t)?.let(::Korvaus) }),
             // Kauttaviivan edellä luku jätetään, jos slash hylkäsi sen: puoliksi avattu "kolme/4" on pahempi.
             passi(re("""$NB($MINUS)?($INT)(?![$W]|[,.:]$D|:|/$D)"""), { m, t -> integer(m, t)?.let(::Korvaus) }),
         )
@@ -170,6 +170,19 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
         private val PER = re("""/(${PER_UNITS.joinToString("|")})(?![$W%°/:])""")
         // Kuukauden nimi luvun perässä: luku on päiväys eikä lukumäärä.
         private val KUUKAUSI_PERASSA = re("""$SP+(?:${MONTHS.joinToString("|")})(?![$W])""", ignoreCase = true)
+        // Tunnistesana luvun edellä: luku on nimi eikä määrä (paikan 5 korttiin, sivun 3 kuvaan),
+        // joten se ei taivu seuraavan sanan mukaan. Paikalla, paikalle ja paikalta puuttuvat, koska ne
+        // ovat tavallisesti adverbejä (paikalla oli 1 347 osallistujaa).
+        private val ID_WORDS = listOf(
+            "paikka", "paikan", "paikkaa", "paikassa", "paikasta", "paikkaan", "paikaksi", "paikkana",
+            "sivu", "sivun", "sivua", "sivulla", "sivulta", "sivulle", "sivussa", "sivusta",
+            "sivuun", "sivuksi", "sivuna",
+            "rivi", "rivin", "riviä", "rivillä", "riviltä", "riville", "rivissä", "rivistä",
+            "riviin", "riviksi", "rivinä",
+            "kohta", "kohdan", "kohtaa", "kohdassa", "kohdasta", "kohtaan", "kohdalla", "kohdalta",
+            "kohdalle", "kohdaksi", "kohtana",
+        )
+        private val TUNNISTE_EDELLA = re("""(?<![$LETTER])(?:${ID_WORDS.joinToString("|")})$SP+$""", ignoreCase = true)
 
         private const val BILJOONA = 1_000_000_000_000L
 
@@ -598,6 +611,10 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
         val n = luku(digits)
         // Kuukauden edellä luku on päiväys. Jos dateNamed hylkäsi sen (32 heinäkuuta), ei arvata.
         if (KUUKAUSI_PERASSA.alusta(text.substring(m.end())) != null) return null
+        // Tunnistesanan perässä nominin edellä luku jää ennalleen. Muualla (rivi 2, sivulla 3 kerrotaan)
+        // se luetaan perusmuodossa kuten ennenkin.
+        if (TUNNISTE_EDELLA.matcher(text.substring(0, m.start())).find() &&
+            context(text, m.end()).laji == "nomini") return null
         val case = cardinalCase(n, text, m.start(), m.end()) ?: return null
         val word = card(n, case)
         if (word.isNullOrEmpty()) return null
