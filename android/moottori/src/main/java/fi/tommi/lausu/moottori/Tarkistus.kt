@@ -22,6 +22,8 @@ import kotlin.concurrent.thread
  * tulos files/<kansio>/<tunnus>.wav):
  *   am start -n fi.tommi.lausu/.moottori.Tarkistus --es lauseet lauseet.txt
  *       --es moottori com.samsung.SMT --es kansio samsung
+ * Lausun lukeva moottori (sama kuin Asetukset-näkymän valinta), esim. ennen äänitystä:
+ *   am start -n fi.tommi.lausu/.moottori.Tarkistus --es kohde com.samsung.SMT
  */
 class Tarkistus : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +34,10 @@ class Tarkistus : Activity() {
         val lauseet = intent.getStringExtra("lauseet")
         val moottori = intent.getStringExtra("moottori") ?: packageName
         val kansio = intent.getStringExtra("kansio") ?: "aanet"
+        intent.getStringExtra("kohde")?.let {
+            Kohde.aseta(this, it)
+            Log.i(TAG, "TARKISTUS kohde: ${Kohde.lue(this)}")
+        }
         thread(name = "tarkistus") {
             if (lauseet != null) {
                 aanita(File(filesDir, lauseet), moottori, File(filesDir, kansio))

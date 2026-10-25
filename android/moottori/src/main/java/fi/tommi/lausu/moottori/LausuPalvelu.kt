@@ -3,6 +3,7 @@
 package fi.tommi.lausu.moottori
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.media.AudioFormat
 import android.os.Bundle
 import android.os.SystemClock
@@ -34,9 +35,10 @@ fun lataaAvaaja(context: Context): Avaaja = Avaaja(
 )
 
 /**
- * Puhemoottori, joka avaa suomen tekstin Lausun kerroksella ja välittää sen Googlen moottorille.
+ * Puhemoottori, joka avaa suomen tekstin Lausun kerroksella ja välittää sen toiselle moottorille
+ * (Google tai Samsung, ks. Kohde).
  *
- * Googlen ääni haetaan synthesizeToFile-kutsulla tavalliseen tiedostoon, ja tiedostoa luetaan
+ * Kohteen ääni haetaan synthesizeToFile-kutsulla tavalliseen tiedostoon, ja tiedostoa luetaan
  * perässä sen kasvaessa. Tapa valittiin kokeessa 25.10.2026: viive oli Pixel 8a:lla noin 7 ms
  * suurempi kuin Googlella suoraan, kun putki lisäsi 80–140 ms (docs/ANDROID.md › Kokeen tulos).
  */
@@ -50,19 +52,45 @@ class LausuPalvelu : TextToSpeechService() {
         @Volatile var pysaytetty = false
     }
 
-    private lateinit var google: TextToSpeech
-    private val muotoValmis = CountDownLatch(1)
-    @Volatile private var muoto: Muoto? = null
+    /** Yhteys kohdemoottoriin. Vaihdetaan kokonaan, kun käyttäjä valitsee toisen kohteen. */
+    private inner class Yhteys(val paketti: String) {
+        val muotoValmis = CountDownLatch(1)
+        @Volatile var muoto: Muoto? = null
+        // Synteesisäikeen välimuisti, ettei joka lausumalla tehdä turhia binder-kutsuja.
+        var kieli = ""
+        var nopeus = -1
+        var korkeus = -1
+        val tts: TextToSpeech = TextToSpeech(this@LausuPalvelu, { tila ->
+            Log.i(TAG, "Asiakas $paketti alustettu, tila $tila")
+            if (tila == TextToSpeech.SUCCESS) thread(name = "kalibrointi") { kalibroi(this) }
+        }, paketti)
+
+        init {
+            tts.setOnUtteranceProgressListener(kuuntelija)
+        }
+    }
+
+    private val kuuntelija = object : UtteranceProgressListener() {
+        override fun onStart(id: String) {}
+        override fun onDone(id: String) { kaynnissa[id]?.valmis?.countDown() }
+        @Suppress("OVERRIDE_DEPRECATION")
+        override fun onError(id: String) { kaynnissa[id]?.valmis?.countDown() }
+        override fun onError(id: String, koodi: Int) {
+            kaynnissa[id]?.let { it.virhe = koodi; it.valmis.countDown() }
+        }
+        override fun onStop(id: String, kesken: Boolean) { kaynnissa[id]?.valmis?.countDown() }
+    }
+
+    @Volatile private lateinit var yhteys: Yhteys
+    @Volatile private var haluttu = GOOGLE
+    private val kohdeMuuttui = SharedPreferences.OnSharedPreferenceChangeListener { _, avain ->
+        if (avain == Kohde.AVAIN) haluttu = Kohde.lue(this)
+    }
     private val avaajaValmis = CountDownLatch(1)
     @Volatile private var avaaja: Avaaja? = null
     private val kaynnissa = ConcurrentHashMap<String, Lausuma>()
     @Volatile private var nykyinen: Lausuma? = null
     private val laskuri = AtomicInteger()
-
-    // Synteesisäikeen välimuisti, ettei joka lausumalla tehdä turhia binder-kutsuja.
-    private var googlenKieli = ""
-    private var googlenNopeus = -1
-    private var googlenKorkeus = -1
 
     @Volatile private var kieli = arrayOf("fin", "FIN", "")
 
@@ -78,41 +106,41 @@ class LausuPalvelu : TextToSpeechService() {
             }
             avaajaValmis.countDown()
         }
-        // Googlen asiakas ennen super.onCreate():a, koska se kutsuu onLoadLanguage():a.
-        google = TextToSpeech(this, { tila ->
-            Log.i(TAG, "Google-asiakas alustettu, tila $tila")
-            if (tila == TextToSpeech.SUCCESS) thread(name = "kalibrointi") { kalibroi() }
-        }, GOOGLE)
-        google.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-            override fun onStart(id: String) {}
-            override fun onDone(id: String) { kaynnissa[id]?.valmis?.countDown() }
-            @Suppress("OVERRIDE_DEPRECATION")
-            override fun onError(id: String) { kaynnissa[id]?.valmis?.countDown() }
-            override fun onError(id: String, koodi: Int) {
-                kaynnissa[id]?.let { it.virhe = koodi; it.valmis.countDown() }
-            }
-            override fun onStop(id: String, kesken: Boolean) { kaynnissa[id]?.valmis?.countDown() }
-        })
+        // Kohteen asiakas ennen super.onCreate():a, koska se kutsuu onLoadLanguage():a.
+        haluttu = Kohde.lue(this)
+        yhteys = Yhteys(haluttu)
+        Kohde.asetukset(this).registerOnSharedPreferenceChangeListener(kohdeMuuttui)
         super.onCreate()
     }
 
     override fun onDestroy() {
-        google.shutdown()
+        Kohde.asetukset(this).unregisterOnSharedPreferenceChangeListener(kohdeMuuttui)
+        yhteys.tts.shutdown()
         super.onDestroy()
     }
 
+    /** Vaihtaa kohteen synteesisäikeessä ennen lausumaa, jos käyttäjä on valinnut toisen. */
+    private fun nykyinenYhteys(): Yhteys {
+        val vanha = yhteys
+        if (vanha.paketti == haluttu) return vanha
+        Log.i(TAG, "Kohde vaihtuu: ${vanha.paketti} -> $haluttu")
+        yhteys = Yhteys(haluttu)
+        vanha.tts.shutdown()
+        return yhteys
+    }
+
     /** Äänen muoto luetaan kerran oikean tiedoston otsakkeesta ennen ensimmäistä lausumaa. */
-    private fun kalibroi() {
-        google.language = Locale("fi", "FI")
-        googlenKieli = "fin-FIN"
-        val tiedosto = File(cacheDir, "kalibrointi.wav")
-        val l = Lausuma("kalibrointi")
+    private fun kalibroi(y: Yhteys) {
+        y.tts.language = Locale("fi", "FI")
+        y.kieli = "fin-FIN"
+        val tiedosto = File(cacheDir, "kalibrointi-${y.paketti}.wav")
+        val l = Lausuma("kalibrointi-${y.paketti}")
         kaynnissa[l.id] = l
-        google.synthesizeToFile("koe", Bundle(), tiedosto, l.id)
+        y.tts.synthesizeToFile("koe", Bundle(), tiedosto, l.id)
         val ehti = l.valmis.await(15, TimeUnit.SECONDS)
         kaynnissa.remove(l.id)
         if (!ehti || l.virhe != null || tiedosto.length() < 44) {
-            Log.e(TAG, "Kalibrointi epäonnistui: ehti=$ehti virhe=${l.virhe} koko=${tiedosto.length()}")
+            Log.e(TAG, "Kalibrointi ${y.paketti} epäonnistui: ehti=$ehti virhe=${l.virhe} koko=${tiedosto.length()}")
             return
         }
         val b = ByteBuffer.wrap(tiedosto.readBytes(), 0, 44).order(ByteOrder.LITTLE_ENDIAN)
@@ -125,9 +153,9 @@ class LausuPalvelu : TextToSpeechService() {
             32 -> AudioFormat.ENCODING_PCM_FLOAT
             else -> AudioFormat.ENCODING_PCM_16BIT
         }
-        muoto = Muoto(taajuus, koodaus, kanavat, kanavat * bitit / 8)
-        Log.i(TAG, "Kalibrointi: $taajuus Hz, $bitit bittiä, $kanavat kanava(a)")
-        muotoValmis.countDown()
+        y.muoto = Muoto(taajuus, koodaus, kanavat, kanavat * bitit / 8)
+        Log.i(TAG, "Kalibrointi ${y.paketti}: $taajuus Hz, $bitit bittiä, $kanavat kanava(a)")
+        y.muotoValmis.countDown()
     }
 
     override fun onIsLanguageAvailable(lang: String?, country: String?, variant: String?): Int =
@@ -148,18 +176,19 @@ class LausuPalvelu : TextToSpeechService() {
     override fun onStop() {
         val l = nykyinen ?: return
         l.pysaytetty = true
-        google.stop()
+        yhteys.tts.stop()
     }
 
     override fun onSynthesizeText(request: SynthesisRequest, callback: SynthesisCallback) {
         val t0 = SystemClock.elapsedRealtimeNanos()
-        if (!muotoValmis.await(15, TimeUnit.SECONDS)) {
-            Log.e(TAG, "Äänen muoto puuttuu, lausuma hylätään")
+        val y = nykyinenYhteys()
+        if (!y.muotoValmis.await(15, TimeUnit.SECONDS)) {
+            Log.e(TAG, "Äänen muoto puuttuu (${y.paketti}), lausuma hylätään")
             callback.error()
             return
         }
-        val m = muoto!!
-        asetaGoogle(request)
+        val m = y.muoto!!
+        asetaKohde(y, request)
         val alkuperainen = request.charSequenceText.toString()
         val teksti = if (request.language == "fin") avaa(alkuperainen) else alkuperainen
         val l = Lausuma("u${laskuri.incrementAndGet()}")
@@ -169,7 +198,7 @@ class LausuPalvelu : TextToSpeechService() {
         val syotto = Syotto(callback, m.kehys)
         try {
             if (callback.start(m.taajuus, m.koodaus, m.kanavat) != TextToSpeech.SUCCESS) return
-            seuraa(teksti, l, syotto)
+            seuraa(y, teksti, l, syotto)
             if (!l.pysaytetty) callback.done()
         } catch (e: IOException) {
             if (!l.pysaytetty) {
@@ -198,29 +227,29 @@ class LausuPalvelu : TextToSpeechService() {
         }
     }
 
-    private fun asetaGoogle(request: SynthesisRequest) {
+    private fun asetaKohde(y: Yhteys, request: SynthesisRequest) {
         val k = "${request.language}-${request.country}"
-        if (k != googlenKieli) {
-            google.language = Locale(request.language, request.country)
-            googlenKieli = k
+        if (k != y.kieli) {
+            y.tts.language = Locale(request.language, request.country)
+            y.kieli = k
         }
-        if (request.speechRate != googlenNopeus) {
-            google.setSpeechRate(request.speechRate / 100f)
-            googlenNopeus = request.speechRate
+        if (request.speechRate != y.nopeus) {
+            y.tts.setSpeechRate(request.speechRate / 100f)
+            y.nopeus = request.speechRate
         }
-        if (request.pitch != googlenKorkeus) {
-            google.setPitch(request.pitch / 100f)
-            googlenKorkeus = request.pitch
+        if (request.pitch != y.korkeus) {
+            y.tts.setPitch(request.pitch / 100f)
+            y.korkeus = request.pitch
         }
     }
 
     /**
-     * Google kirjoittaa tiedostoon, ja sitä luetaan perässä. Kasvavasta tiedostosta luku
-     * palauttaa -1 ennen kuin Google on valmis, joten silloin odotetaan eikä lueta -1:tä loppuna.
+     * Kohde kirjoittaa tiedostoon, ja sitä luetaan perässä. Kasvavasta tiedostosta luku
+     * palauttaa -1 ennen kuin kohde on valmis, joten silloin odotetaan eikä lueta -1:tä loppuna.
      */
-    private fun seuraa(teksti: String, l: Lausuma, syotto: Syotto) {
+    private fun seuraa(y: Yhteys, teksti: String, l: Lausuma, syotto: Syotto) {
         val tiedosto = File(cacheDir, "${l.id}.wav")
-        val tulos = google.synthesizeToFile(teksti, Bundle(), tiedosto, l.id)
+        val tulos = y.tts.synthesizeToFile(teksti, Bundle(), tiedosto, l.id)
         if (tulos != TextToSpeech.SUCCESS) throw IOException("synthesizeToFile palautti $tulos")
         try {
             FileInputStream(tiedosto).use { sisaan ->

@@ -255,3 +255,27 @@ Tommin huomio Samsungista: ääni on eri ja kuuluu hiljaisempana.
   (`LausuPalvelu.kt`, `GOOGLE`). Lausu+Samsungia ei siis ole kuultu.
 - Otos on viisi lausetta yhdellä Google-äänellä. Se ei kerro, miten Google lukee muut
   kuviot (esim. sijamuodot muiden lukujen kanssa).
+
+## Lukevan moottorin valinta: Google tai Samsung (25.10.2026)
+
+Kuuntelukokeen jälkeen Lausu osaa välittää tekstin myös Samsungin moottorille (Tommin pyyntö).
+Valinta tehdään puhemoottorin rataskuvakkeesta (Asetukset › Tekstistä puheeksi › Lausu), joka
+avaa Lausun asetusnäkymän (`Asetukset.kt`). Näkymässä ovat ne tuetuista moottoreista (Google ja
+Samsung), jotka laitteessa on. Oletus on Google. Jos valittu moottori poistetaan, Lausu palaa
+Googleen (`Kohde.kt`).
+
+- Moottori vaihtaa kohdetta seuraavan lausuman alussa. Silloin se avaa yhteyden uuteen
+  moottoriin ja lukee sen äänen muodon kuten käynnistyksessä. Tabletilla vaihto Googlesta
+  Samsungiin kesti noin 0,25 s, joten se osuu yhteen lausumaan.
+- **Todennettu tabletilla (SM-T970):** valinta napautettiin asetusnäkymässä kesken 30 lauseen
+  äänityksen. Loki näytti vaihdon 8. lauseen jälkeen, ja siitä alkaen tiedostot olivat
+  Samsungin. Samat lauseet Lausu+Googlella vaihdon jälkeen tuottivat tavulleen saman äänen kuin
+  ensimmäisessä kokeessa, eli Googlen reitti ei muuttunut.
+- `Tarkistus` asettaa saman valinnan adb:llä (`--es kohde`). Tabletin valinta palautettiin
+  Googleen kokeen jälkeen. Järjestelmän oletusmoottori on yhä Google, eli Lausua ei ole valittu
+  tabletilla puhemoottoriksi.
+- Lausu+Samsungin äänet (samat viisi lausetta) ovat tulossivulla sarakkeessa "Lausu (Samsung)".
+  Tulos kirjataan tähän kuuntelun jälkeen.
+- Sivuhavainto: ennen uuden version asennusta vanhan moottorin kalibrointi Googlea vasten
+  aikakatkaistiin kerran (prosessi oli ollut käynnissä noin puoli tuntia). Uudelleenkäynnistys
+  korjasi sen. Syytä ei selvitetty.
