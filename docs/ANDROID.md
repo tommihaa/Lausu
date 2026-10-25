@@ -35,8 +35,8 @@ Jos jokin näistä ei toimi, tie on suljettu, ja se kirjataan tähän.
 
 ## Kokeen tulos (25.10.2026)
 
-Koodi on kansiossa `koe/android-tts/`. Se on kertakäyttöinen koe eikä repopäätös. Mukana on kaksi
-osaa:
+Koodi oli kansiossa `koe/android-tts/`, joka poistettiin moottorin valmistuttua (Tommin päätös
+25.10.2026). Sen voi palauttaa commitista `d3a903e`. Mukana oli kaksi osaa:
 
 - `ValitysPalvelu` on puhemoottori, joka välittää tekstin Googlen moottorille ja syöttää sen äänen
   eteenpäin. Teksti kulkee kokeessa läpi muuttamatta, eli Lausun kerrosta ei ole vielä mukana.
