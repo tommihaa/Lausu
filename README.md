@@ -40,6 +40,16 @@ toimi. Selaintila on ajettu kerran (Superjatsi Chromessa). Kytkentä käyttää
 NVDA:n puhesekvenssin suodatinta (`speech.extensions.filter_speechSequence`), joka on
 NVDA 2024.2:sta alkaen.
 
+## Asennus
+
+1. Lataa `lausu-<versio>.nvda-addon` GitHubin
+   [julkaisuista](https://github.com/tommihaa/Lausu/releases).
+2. Avaa tiedosto NVDA:n ollessa käynnissä ja hyväksy asennus. NVDA käynnistyy uudelleen.
+3. Lausu on päällä heti. Päälle/pois-komennolle ei ole valmista näppäinkomentoa. Sen voi
+   antaa NVDA-valikon kohdassa Mukautukset › Näppäinkomennot, luokassa Lausu.
+
+Käyttöohje on lisäosan mukana: [addon/doc/fi/readme.html](addon/doc/fi/readme.html).
+
 ## Rakenne
 
 ```
