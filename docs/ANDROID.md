@@ -191,3 +191,19 @@ Seuraavia ei ole korjattu:
   itse.
 - **Hinta kahdessa osassa.** Verkkokauppa antoi hinnan TalkBackille kahtena kohtana ("649," ja
   "00"), joten ensimmäinen avautui pilkun kanssa. Tämä on sivun rakenne eikä kerroksen vika.
+
+## Kuuntelukoe: Google, Lausu ja Samsung (25.10.2026)
+
+Kysymys: kuinka paljon Googlen ja Samsungin moottorit taivuttavat jo itse oikein? Lausun
+lisäarvo riippuu siitä. Samat viisi lausetta, joissa on 13 kuulohavaintoa
+(`tests/lauseet.txt`: taivutus, numerot, raha, jarjestys ja lyhenteet), tehtiin tabletilla
+(SM-T970, API 33) kolmella tavalla kunkin moottorin oletusäänellä:
+
+- **Google suoraan:** `com.google.android.tts`, ääni `fi-FI-language`, alkuperäinen teksti.
+- **Lausu:** Lausun moottori (`fi.tommi.lausu`), joka avaa tekstin ja välittää sen Googlelle.
+  Lokista todennettu, että kaikki viisi lausetta avautuivat odotettuun muotoon.
+- **Samsung suoraan:** `com.samsung.SMT`, ääni `fi-FI-default` (naisääni), alkuperäinen teksti.
+
+Äänet tehtiin `Tarkistus`-aktiviteetin äänitystilalla (`synthesizeToFile`, ohje tiedostossa).
+Äänet ja arviot ovat tulossivulla https://claude.ai/artifact/QTE8FTR4Yk2RKiKhZcKWJV
+(kokoelma `android`, vapaa huomio `huomiot/android`). Tulos kirjataan tähän kuuntelun jälkeen.

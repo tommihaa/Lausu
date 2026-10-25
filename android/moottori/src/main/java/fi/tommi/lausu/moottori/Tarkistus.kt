@@ -18,6 +18,10 @@ import kotlin.concurrent.thread
  *   am start -n fi.tommi.lausu/.moottori.Tarkistus --es tapaukset tapaukset.txt
  * Yksi teksti kerroksen läpi, ja --ez puhu true puhuu sen myös Lausun moottorilla hiljaa:
  *   am start -n fi.tommi.lausu/.moottori.Tarkistus --es teksti "Nouse 2. kerrokseen." --ez puhu true
+ * Lauseet WAV-tiedostoiksi valitulla moottorilla kuuntelukoetta varten (rivit "tunnus<TAB>teksti",
+ * tulos files/<kansio>/<tunnus>.wav):
+ *   am start -n fi.tommi.lausu/.moottori.Tarkistus --es lauseet lauseet.txt
+ *       --es moottori com.samsung.SMT --es kansio samsung
  */
 class Tarkistus : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +29,15 @@ class Tarkistus : Activity() {
         val tiedosto = intent.getStringExtra("tapaukset")
         val teksti = intent.getStringExtra("teksti")
         val puhu = intent.getBooleanExtra("puhu", false)
+        val lauseet = intent.getStringExtra("lauseet")
+        val moottori = intent.getStringExtra("moottori") ?: packageName
+        val kansio = intent.getStringExtra("kansio") ?: "aanet"
         thread(name = "tarkistus") {
+            if (lauseet != null) {
+                aanita(File(filesDir, lauseet), moottori, File(filesDir, kansio))
+                runOnUiThread { finish() }
+                return@thread
+            }
             val avaaja = lataaAvaaja(this)
             if (tiedosto != null) {
                 val tapaukset = Tapaukset.lue(File(filesDir, tiedosto).readLines(Charsets.UTF_8))
@@ -39,6 +51,39 @@ class Tarkistus : Activity() {
             }
             runOnUiThread { finish() }
         }
+    }
+
+    /** Kirjoittaa jokaisen lauseen tiedostoksi annetulla moottorilla suomeksi, oletusäänellä. */
+    private fun aanita(lahde: File, moottori: String, kohde: File) {
+        kohde.mkdirs()
+        val rivit = lahde.readLines(Charsets.UTF_8).filter { '\t' in it }
+        val alustettu = java.util.concurrent.CountDownLatch(1)
+        var tila = TextToSpeech.ERROR
+        lateinit var tts: TextToSpeech
+        tts = TextToSpeech(applicationContext, { tila = it; alustettu.countDown() }, moottori)
+        alustettu.await(20, java.util.concurrent.TimeUnit.SECONDS)
+        if (tila != TextToSpeech.SUCCESS) {
+            Log.e(TAG, "ÄÄNITYS $moottori: alustus epäonnistui ($tila)")
+            return
+        }
+        val kieli = tts.setLanguage(Locale("fi", "FI"))
+        Log.i(TAG, "ÄÄNITYS $moottori: kieli $kieli, ääni ${tts.voice?.name}")
+        var valmis = java.util.concurrent.CountDownLatch(1)
+        tts.setOnUtteranceProgressListener(object : android.speech.tts.UtteranceProgressListener() {
+            override fun onStart(id: String) {}
+            override fun onDone(id: String) = valmis.countDown()
+            @Suppress("OVERRIDE_DEPRECATION")
+            override fun onError(id: String) = valmis.countDown()
+        })
+        for (rivi in rivit) {
+            val (tunnus, lause) = rivi.split('\t', limit = 2)
+            valmis = java.util.concurrent.CountDownLatch(1)
+            val wav = File(kohde, "$tunnus.wav")
+            tts.synthesizeToFile(lause, Bundle(), wav, tunnus)
+            val ehti = valmis.await(30, java.util.concurrent.TimeUnit.SECONDS)
+            Log.i(TAG, "ÄÄNITYS $moottori $tunnus: ehti=$ehti ${wav.length()} tavua")
+        }
+        tts.shutdown()
     }
 
     /** Puhuu tekstin Lausun omalla moottorilla äänenvoimakkuudella 0 ja odottaa lopun. */
