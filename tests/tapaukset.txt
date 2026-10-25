@@ -155,3 +155,72 @@ USA	uu äs aa
 YLEn	YLEn
 Yle	Yle
 TVT	TVT	# tuntematon tai jo sanana: ennalleen
+
+# Lisätapaukset 25.10.2026 (Tommin pyyntö: lyhenteet, kirjainlyhenteet, sijamuodot ja ruudunlukijan tekstit)
+# Lyhenteet (sanasto)
+kirjat, lehdet ym.	kirjat, lehdet ynnä muuta.
+tavarat yms.	tavarat ynnä muuta sellaista.
+kynä tms.	kynä tai muuta sellaista.
+eli ts. ei	eli toisin sanoen ei
+vrt. edellinen	vertaa edellinen
+Huom. tämä	Huomaa tämä
+puh. 040 123 4567	puhelin nolla neljä nolla, yksi kaksi kolme, neljä viisi kuusi seitsemän
+nro 5	numero viisi
+klo. 8	kello kahdeksan
+Ks. s. 5	Katso sivu viisi
+n. 20 %	noin kaksikymmentä prosenttia
+n. 3 kk	noin kolme kuukautta
+mm. EU	muun muassa ee uu
+kentässä nro on	kentässä nro on	# nro ilman lukua: ennalleen
+s. ei	s. ei	# s. ilman lukua: ennalleen
+v. 12	v. kaksitoista	# v. vain vuosiluvun edellä, luku avataan perusmuotona
+ns. kultainen	ns. kultainen	# ei sanastossa: ennalleen
+esim kaksi	esim kaksi	# ilman pistettä ei lyhenne
+# Kirjainlyhenteet ja niiden taivutus
+SAK:n	äs aa koon
+YK:ssa	yy koossa
+ALV:n	aa äl veen
+USB:hen	uu äs beehen
+TV:ssä	tee veessä
+HUS:iin	Husiin
+KELA:sta	Kelasta
+NATO:n	Naton
+YLE Areena	Yle Areena
+NHL	NHL	# ei sanastossa: ennalleen
+EUROOPPA	EUROOPPA	# lyhenne sanan sisällä: ennalleen
+eu	eu	# pienillä kirjaimilla: ennalleen
+# Lukujen sijamuodot
+3:sta	kolmesta
+4:nä päivänä	neljänä päivänä
+10:ssä	kymmenessä
+7:ään	seitsemään
+6:lla	kuudella
+8:lta	kahdeksalta
+9:ksi	yhdeksäksi
+100:n	sadan
+1000:een	tuhanteen
+20:een	kahteenkymmeneen
+3 lapsella	kolmella lapsella
+5 kaupungissa	viidessä kaupungissa
+12 kuukaudessa	kahdessatoista kuukaudessa
+2 tunnin päästä	kahden tunnin päästä
+4 hengen	neljän hengen
+21 päivää	kaksikymmentäyksi päivää
+3 vuodeksi	kolmeksi vuodeksi
+25 euron	kahdenkymmenenviiden euron
+3. luokalla	kolmannella luokalla
+1. sijalle	ensimmäiselle sijalle
+10. päivänä	kymmenentenä päivänä
+# Ruudunlukijan tekstit
+Akku 85 %	Akku kahdeksankymmentäviisi prosenttia
+Lataus 100 %	Lataus sata prosenttia
+3 ilmoitusta	kolme ilmoitusta
+1 uusi viesti	yksi uusi viesti
+Välilehti 2/5	Välilehti kaksi kautta viisi
+Kohde 4 / 10	Kohde neljä / kymmenen
+Luettelo, 12 kohdetta	Luettelo, kaksitoista kohdetta
+Otsikko, taso 2	Otsikko, taso kaksi
+rivi 3, sarake 4	rivi kolme, sarake neljä
+5 min sitten	viisi minuuttia sitten
+klo 7.00 herätys	kello seitsemän herätys
+11:47	11:47	# kellonaika ilman sanaa klo: ennalleen (TalkBack 25.10.2026)
