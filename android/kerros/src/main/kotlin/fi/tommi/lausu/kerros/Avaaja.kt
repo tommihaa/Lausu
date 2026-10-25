@@ -391,6 +391,8 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
         if (suffix.isNotEmpty() && stem != null) {
             // Takavokaalinen pääte (THL:ssa) muutetaan ä-vartaloon sopivaksi: ällässä.
             suffix = suffix.replace('a', 'ä').replace('o', 'ö').replace('u', 'y')
+            // Partitiivi kirjoitetaan usein t-alkuisena (THL:tä), mutta muoto on ällää.
+            if (suffix == "tä" || suffix == "ttä") suffix = "ää"
             names[names.lastIndex] = if (suffix[0] in "aeiouyäö") stem.dropLast(1) + suffix else stem + suffix
             suffix = ""
         }

@@ -341,6 +341,9 @@ class Avaaja:
         if suffix and stem:
             # Takavokaalinen pääte (THL:ssa) muutetaan ä-vartaloon sopivaksi: ällässä.
             suffix = suffix.translate(FRONT_VOWELS)
+            # Partitiivi kirjoitetaan usein t-alkuisena (THL:tä), mutta muoto on ällää.
+            if suffix in ("tä", "ttä"):
+                suffix = "ää"
             names[-1] = stem[:-1] + suffix if suffix[0] in "aeiouyäö" else stem + suffix
             suffix = ""
         return " ".join(names) + suffix

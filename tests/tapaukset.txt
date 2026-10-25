@@ -235,4 +235,8 @@ THL	tee hoo äl	# ilman päätettä perusmuoto
 THL:ssa	tee hoo ällässä	# takavokaalinen pääte harmonisoidaan (Tommin päätös 25.10.2026)
 VR:lla	vee ärrällä	# takavokaalinen pääte harmonisoidaan
 PDF:aan	pee dee äffään	# vokaalialkuinen ja takavokaalinen pääte
+THL:tä	tee hoo ällää	# t-alkuinen partitiivi (ennen "ällätä")
+THL:ta	tee hoo ällää	# t-alkuinen ja takavokaalinen partitiivi
+VR:ttä	vee ärrää
+YK:ta	yy koota	# vokaaliin päättyvä kirjain: pääte sellaisenaan kuten ennen
 EU:n	ee uun	# vokaaliin päättyvä kirjain: pääte suoraan kuten ennen
