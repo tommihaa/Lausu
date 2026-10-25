@@ -67,6 +67,8 @@ CLITIC = re.compile(r"(?:kin|kaan|kään|ko|kö|han|hän|pa|pä)$")
 # ei tavaa tai liimaa niitä (Harri: "YLELE"). Kirjaimittain luettavat kirjoitetaan kirjainten
 # nimiksi välilyönnein, koska yhdysmerkin syntetisaattori voi lukea "viivana".
 # Kaksoispistepääte liitetään sellaisenaan: YLE:n -> Ylen, EU:ssa -> ee uussa.
+# Yhdysmerkillinen lyhenne (EU-maat, Suomi-EU) jää ennalleen. Google ja Samsung lukivat sen
+# itse oikein, mutta mikään auki kirjoitettu muoto ei toiminut kummallakin (Tommi 25.10.2026).
 ACRONYM_WORD = {"YLE": "Yle", "KELA": "Kela", "NATO": "Nato", "HUS": "Hus", "VTT": None}
 LETTER_NAMES = {"A": "aa", "B": "bee", "C": "see", "D": "dee", "E": "ee", "F": "äf", "G": "gee",
                 "H": "hoo", "I": "ii", "J": "jii", "K": "koo", "L": "äl", "M": "äm", "N": "än",
@@ -114,7 +116,7 @@ class Avaaja:
         self.per = re.compile(r"/(" + "|".join(PER_UNITS) + r")(?![\w%°/:])")
         acr = "|".join(sorted(set(ACRONYM_WORD) | ACRONYM_SPELLED, key=len, reverse=True))
         self.passes = [
-            (re.compile(rf"(?<![{LETTER}\d])({acr})(?::([{LOWER}]+))?(?![{LETTER}\d])"), self._acronym),
+            (re.compile(rf"(?<![{LETTER}\d])(?<![{LETTER}\d]-)({acr})(?::([{LOWER}]+))?(?![{LETTER}\d]|-[{LETTER}\d])"), self._acronym),
             (re.compile(r"(?<![\w.])(" + "|".join(re.escape(a[:-1]) + r"\." if a.endswith(".")
                         else re.escape(a) for a in sorted(ABBR, key=len, reverse=True))
                         + r")(?![\w.])", re.I), self._abbr),

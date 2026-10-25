@@ -240,3 +240,12 @@ THL:ta	tee hoo ällää	# t-alkuinen ja takavokaalinen partitiivi
 VR:ttä	vee ärrää
 YK:ta	yy koota	# vokaaliin päättyvä kirjain: pääte sellaisenaan kuten ennen
 EU:n	ee uun	# vokaaliin päättyvä kirjain: pääte suoraan kuten ennen
+# Yhdysmerkillinen kirjainlyhenne jää ennalleen (kuuntelu ja Tommin päätös 25.10.2026, docs/ANDROID.md)
+EU-maat sopivat asiasta.	EU-maat sopivat asiasta.	# Google ja Samsung lukivat alkuperäisen oikein
+THL-raportti	THL-raportti
+YLE-uutiset	YLE-uutiset	# myös sanana luettava
+Suomi-EU-suhteet	Suomi-EU-suhteet	# yhdysmerkki edellä ja perässä
+Suomi-EU	Suomi-EU	# yhdysmerkki vain edellä
+EU:n ja USA:n	ee uun ja uu äs aan	# ilman yhdysmerkkiä avataan kuten ennen
+EU, USA	ee uu, uu äs aa
+EU -maat	ee uu -maat	# välilyönti ennen viivaa: ei yhdysmerkki

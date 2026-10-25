@@ -359,8 +359,9 @@ THL:ta ja THL:ää samaan muotoon "ällää" (tests/tapaukset.txt).
 Mikään auki kirjoitettu muoto ei kuulunut oikein kummallakin lukijalla, ja kerroksen nykyinen
 muoto "ee uu-maat" kuului Googlella väärin. Samsung tuotti tavulleen saman äänen muodoille
 "ee uu-maat", "ee uu maat" ja "ee-uu-maat". Havaintojen perusteella yhdysmerkillinen
-kirjainlyhenne kannattaisi jättää ennalleen. Muutos odottaa Tommin päätöstä. Kuultu on vain
-EU, eikä NVDA:n ääniä ole kuunneltu tällä muodolla.
+kirjainlyhenne kannattaisi jättää ennalleen. Tommi päätti niin 25.10.2026, ja kerros jättää
+nyt yhdysmerkillisen lyhenteen (EU-maat, Suomi-EU, YLE-uutiset) ennalleen molemmissa
+toteutuksissa. Kuultu on vain EU, eikä NVDA:n ääniä ole kuunneltu tällä muodolla.
 
 **Samsungin äänenvoimakkuus:** Tommi kuuli Samsungin edelleen hiljaisempana ja hieman
 epäselvänä. Mittaus tukee havaintoa. Puhenäytteiden (näytteet, joiden itseisarvo on yli 300)

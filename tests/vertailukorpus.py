@@ -34,6 +34,7 @@ KUVIOT = [
     "{d} heinäkuuta", "{d} lokakuuta {y}", "{n} heinäkuuta",
     "{n}/{m}/{n}", "{n},5/{m}", "{n}/{m}:{suf}", "Heitto {n}/{m}",
     "THL:{suf}", "VR:{suf}", "PDF:{suf}", "HSL:{suf}", "SAK:{suf}", "USB:{suf}", "THL",
+    "EU-maat", "Suomi-EU", "THL-{suf}", "EU -maat",
 ]
 PER = ["kk", "vrk", "h", "min", "s", "kpl", "snt", "kk:n", "hh"]
 SUFFIKSIT = ["n", "a", "ä", "ta", "ttä", "een", "ään", "aan", "seen", "lle", "lla", "ssa", "sta",

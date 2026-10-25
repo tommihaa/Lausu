@@ -66,7 +66,7 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
         rangeUnit = re("""$SP?($unitAlt)(?![$W%°:])""")
         fun passi(p: Pattern, fn: (MatchResult, String) -> Korvaus?) = p to fn
         passes = listOf(
-            passi(re("""(?<![$LETTER$D])($acr)(?::([$LOWER]+))?(?![$LETTER$D])"""), ::acronym),
+            passi(re("""(?<![$LETTER$D])(?<![$LETTER$D]-)($acr)(?::([$LOWER]+))?(?![$LETTER$D]|-[$LETTER$D])"""), ::acronym),
             passi(re("""(?<![$W.])($abbrAlt)(?![$W.])""", ignoreCase = true), { m, t -> abbr(m, t)?.let(::Korvaus) }),
             passi(re("""(?<![$W+])(\+358$SP?|0)($D{1,3})((?:[ -]$D{2,7}){1,3})(?![$D,]|\.$D)"""), { m, _ -> phone(m)?.let(::Korvaus) }),
             passi(re("""(?<![$D.,])($D{1,2})\.($D{1,2})\.($D{4})?(?![$D:]|\.$D)"""), { m, t -> date(m, t)?.let(::Korvaus) }),
@@ -133,6 +133,7 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
         private val CLITIC = Regex("(?:kin|kaan|kään|ko|kö|han|hän|pa|pä)$")
 
         // Kirjainlyhenteet: sanana luettavat sanaksi, kirjaimittain luettavat kirjainten nimiksi.
+        // Yhdysmerkillinen lyhenne (EU-maat, Suomi-EU) jää ennalleen (avaa.py, Tommi 25.10.2026).
         // Perustelut avaa.py:ssä.
         private val ACRONYM_WORD = mapOf("YLE" to "Yle", "KELA" to "Kela", "NATO" to "Nato", "HUS" to "Hus")
         private val LETTER_NAMES = mapOf('A' to "aa", 'B' to "bee", 'C' to "see", 'D' to "dee", 'E' to "ee",
