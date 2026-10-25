@@ -46,8 +46,11 @@ NVDA 2024.2:sta alkaen.
 addon/                     lisäosan sisältö (manifest.ini, käyttöohje doc/fi/)
   globalPlugins/lausu/     __init__.py (NVDA-kytkentä), avaa.py (kerros), sanapuu.py, data/
 build/                     käännösvaihe ja pakkaus
-tests/                     test_avaa.py (kerros), test_nvda.py (kytkentä), mittaa.py (nopeus)
-docs/                      kokeilun raportti, lisenssiselvitys ja Android-idea (ANDROID.md)
+tests/                     tapaukset.txt (kerroksen määrittely), test_avaa.py (kerros),
+                           test_nvda.py (kytkentä), mittaa.py (nopeus), vertailukorpus.py
+android/                   Android-versio: kerros/ (Kotlin) ja moottori/ (puhemoottori TalkBackille)
+koe/android-tts/           Android-välityksen ensimmäinen koe (docs/ANDROID.md)
+docs/                      kokeilun raportti, lisenssiselvitys ja Android-suunnitelma (ANDROID.md)
 ```
 
 Rakennus (Python 3.12, käännösvaiheeseen tarvitaan uralicNLP ja sen fin-malli):

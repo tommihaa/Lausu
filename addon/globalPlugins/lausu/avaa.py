@@ -401,7 +401,10 @@ class Avaaja:
         c = 0 if cents in (None, "-") else int(cents)
         parts = []
         if e or not c:
-            parts.append("yksi euro" if e == 1 else f"{self.card(e)} euroa")
+            w = self.card(e)
+            if w is None:
+                return None    # yli biljoona: ilman tätä tulos olisi "None euroa"
+            parts.append("yksi euro" if e == 1 else f"{w} euroa")
         if c:
             parts.append("yksi sentti" if c == 1 else f"{self.card(c)} senttiä")
         return self._sign(sign) + " ".join(parts)

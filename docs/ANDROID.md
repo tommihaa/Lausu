@@ -1,7 +1,8 @@
-# Lausu Androidille (idea 25.10.2026, ei päätös)
+# Lausu Androidille
 
-Tila: ensimmäinen koe ajettu 25.10.2026 mittausohjelmalla ja TalkBackilla, ja tie on auki
-(ks. Kokeen tulos). Lausun kerros puuttuu vielä Android-moottorista.
+Tila 25.10.2026: tie on auki. Koe on ajettu mittausohjelmalla ja TalkBackilla (ks. Kokeen tulos).
+Kerros on portattu Kotlinille ja kytketty moottoriin (ks. Porttaus). Lausun TalkBack-ajo
+puuttuu.
 
 ## Miksi
 
@@ -104,11 +105,49 @@ Moottorin loki samasta ajosta (159 TalkBackin lausumaa):
 ## Mitä siirtyy ja mitä kirjoitetaan uudelleen
 
 - **Siirtyy sellaisenaan:** käännösvaiheen data (`sijat.dawg`, `lukusanat.json`, verbimuodot) ja
-  testitapaukset (`tests/test_avaa.py`), jotka käyvät määrittelyksi.
+  testitapaukset (`tests/tapaukset.txt`), jotka käyvät määrittelyksi.
 - **Kirjoitetaan uudelleen:** `avaa.py` ja `sanapuu.py` Kotlinilla, koska Androidissa ei ole
   Pythonia. Testit ajetaan molemmissa toteutuksissa samoja tapauksia vasten.
 
-## Avoin päätös
+## Päätös: `android/`-kansio tähän repoon (25.10.2026)
 
-Erillinen repo vai `android/`-kansio tämän repon sisällä. Päätetään kokeen jälkeen. Siihen
-vaikuttaa, kuinka paljon dataa ja testejä jaetaan.
+Tommin päätös kokeen jälkeen. Syy on jaettu data ja jaetut testit. Molemmat toteutukset lukevat
+saman datan (`addon/globalPlugins/lausu/data/`) ja samat testitapaukset (`tests/tapaukset.txt`),
+joten kumpaakaan ei kopioida.
+
+Rakenne:
+
+- `android/kerros/` on pelkkää JVM-Kotlinia (`Avaaja`, `Sanapuu`). Testit ajetaan JUnitilla ilman
+  laitetta, ja ne lukevat samat tapaukset kuin `tests/test_avaa.py`.
+- `android/moottori/` on Android-sovellus eli puhemoottori. Se pohjautuu kokeen
+  `ValitysPalvelu`un ja käyttää seuraa-tapaa. Data pakataan sovellukseen suoraan
+  `addon/`-kansiosta.
+
+## Porttaus (25.10.2026)
+
+`avaa.py` ja `sanapuu.py` on kirjoitettu Kotlinilla (`android/kerros/`: `Avaaja.kt`,
+`Sanapuu.kt`). Säännöt, järjestys ja nimet seuraavat Python-toteutusta. Yksi ero on tehty
+tarkoituksella: Javan `\w`, `\d`, `\s` ja `\b` ovat ASCII-luokkia, joten ne on kirjoitettu auki
+Unicode-ominaisuuksina samoiksi kuin Pythonissa.
+
+Todennus:
+
+| Mitä | Missä | Tulos |
+|---|---|---|
+| `tests/tapaukset.txt` (125 tapausta) | JVM (JUnit) | 125/125 |
+| Vertailukorpus, 20 000 generoitua syötettä Python-tuloksineen | JVM (JUnit) | 20 000/20 000 samoja |
+| Samat kaksi tiedostoa Androidin omalla regex-moottorilla | Pixel 8a | 125/125 ja 20 000/20 000 |
+| Lause puhuttuna Lausun moottorin läpi äänenvoimakkuudella 0 | Pixel 8a | avautui, ääni tuli |
+
+Vertailukorpus tuotetaan `tests/vertailukorpus.py`:llä. Se kertoo vain, että toteutukset ovat
+samat, ja oikean tuloksen määrittelee `tapaukset.txt`. Korpuksesta 14 548 syötettä 20 000:sta
+muuttui avauksessa, eli se käy läpi muutakin kuin ennalleen jääviä tapauksia.
+
+Porttaus löysi Pythonista yhden vian. Yli biljoonan euron summa tuli muodossa "None euroa",
+koska lukusanaa ei ollut. Nyt summa jää ennalleen, ja tapaus on `tapaukset.txt`:ssä.
+
+Moottori (`android/moottori/`, sovellus "Lausu", paketti `fi.tommi.lausu`) lataa kerroksen
+käynnistyessään (Pixelillä 31 ms) ja avaa vain suomenkieliset lausumat. Jos kerros ei lataudu,
+teksti kulkee ennallaan. Kehitysversio kirjaa lausuman tekstin ennen ja jälkeen avauksen
+lokiin (tagi `Lausu`). Julkaisuversio ei kirjaa, koska ruudunlukijan teksti on käyttäjän dataa.
+Laitetarkistus ajetaan `Tarkistus`-aktiviteetilla adb:llä, ja ohje on sen tiedostossa.

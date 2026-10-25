@@ -5,12 +5,24 @@ Kuvaus ja rakenne: README.md. Kokeilun mittaukset ja lisenssiselvitys: docs/KOKE
 
 ## Testit
 
-Koodimuutoksen jälkeen aja molemmat ja korjaa, kunnes ne menevät läpi (kokoelman verify.py lisäksi):
+Koodimuutoksen jälkeen aja nämä ja korjaa, kunnes ne menevät läpi (kokoelman verify.py lisäksi):
 
 ```
-python -X utf8 tests/test_avaa.py    # kerros: 13 kuulohavaintoa ja lisätapaukset
+python -X utf8 tests/test_avaa.py    # kerros: tests/tapaukset.txt (13 kuulohavaintoa ja lisätapaukset)
 python -X utf8 tests/test_nvda.py    # NVDA-kytkentä tyngillä + käyttöohjeen merkkijonot
+android/gradlew -p android :kerros:test   # Kotlin-kerros samoja tapauksia vasten
 ```
+
+Kerroksen sääntömuutos tehdään molempiin toteutuksiin (`avaa.py` ja `android/kerros/.../Avaaja.kt`)
+samassa commitissa. Sen jälkeen aja vertailu, joka vaatii toteutuksilta saman tuloksen:
+
+```
+python -X utf8 tests/vertailukorpus.py
+android/gradlew -p android :kerros:test -Plausu.vertailu=../build/tyo/vertailu.tsv
+```
+
+Gradle tarvitsee `JAVA_HOME`:n (Android Studion `jbr`). Android-moottorin rakennus ja
+laitetarkistus: docs/ANDROID.md › Porttaus.
 
 Python on `$LOCALAPPDATA/Programs/Python/Python312/python.exe` (ei paljasta `python`-kutsua).
 
