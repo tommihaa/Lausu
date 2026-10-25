@@ -105,6 +105,8 @@ Kaupungissa on 3 seuraa.	Kaupungissa on kolme seuraa.
 sunnuntai 25. lokakuuta 2026	sunnuntai kahdeskymmenesviides lokakuuta kaksituhatta kaksikymmentäkuusi
 1. toukokuuta	ensimmäinen toukokuuta
 32. lokakuuta	32. lokakuuta
+perjantaina 10 heinäkuuta kello 18	perjantaina kymmenes heinäkuuta kello kahdeksantoista	# piste puuttuu (Ilmatieteen laitos, TalkBack 25.10.2026)
+32 heinäkuuta	32 heinäkuuta	# ei päiväys eikä lukumäärä: ennalleen
 2. kerroksen	toisen kerroksen	# muu sana: järjestyslukusääntö kuten ennen
 klo 9	kello yhdeksän
 klo 9.05	kello yhdeksän nolla viisi
@@ -120,6 +122,11 @@ klo 14.00	kello neljätoista
 15%	viisitoista prosenttia
 1 %	yksi prosentti
 3,25 m	kolme pilkku kaksikymmentäviisi metriä
+Takaisinmaksuaika 12 kk.	Takaisinmaksuaika kaksitoista kuukautta.
+15 vrk:n ennuste	viidentoista vuorokauden ennuste
+Toimitusmaksu 3 €/kk.	Toimitusmaksu kolme euroa kuukaudessa.	# per-yksikkö inessiivissä
+50 km/h	viisikymmentä kilometriä tunnissa
+3 €/kpl	kolme euroa/kpl	# vain aikayksikkö luetaan per-yksikkönä
 2,075 kg	kaksi pilkku nolla seitsemän viisi kilogrammaa
 5-vuotias	viisi vuotias
 Linkki, 3 / 12.	Linkki, kolme / kaksitoista.

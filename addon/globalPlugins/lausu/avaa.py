@@ -76,6 +76,12 @@ LETTER_NAMES = {"A": "aa", "B": "bee", "C": "see", "D": "dee", "E": "ee", "F": "
 ACRONYM_SPELLED = {"EU", "USA", "YK", "ALV", "VR", "SAK", "EK", "THL", "HSL", "PDF", "USB", "TV", "VTT"}
 ACRONYM_WORD = {k: v for k, v in ACRONYM_WORD.items() if v}
 
+# Per-yksikkö: 3 €/kk, 50 km/h. Jakoviivan jälkeinen aikayksikkö luetaan inessiivissä
+# (kolme euroa kuukaudessa). Muut jakoviivat jäävät ennalleen (3 €/kpl).
+PER_UNITS = ["vrk", "min", "kk", "h", "s"]
+# Kuukauden nimi luvun perässä: luku on päiväys eikä lukumäärä.
+MONTH_AFTER = re.compile(rf"{SP}+(?:{'|'.join(MONTHS)})(?![\w])", re.I)
+
 # Kaksoispistepäätteen sijat yleisimmästä alkaen. Pääte hyväksytään vain, jos
 # generoitu muoto todella päättyy siihen (5:ään hylätään, koska viiteen ≠ -ään).
 SUFFIX_CASE = [
@@ -99,6 +105,7 @@ class Avaaja:
         self.sijat = Sanapuu.lataa(data_dir / "sijat.dawg")
         unit_alt = "|".join(re.escape(u) for u in sorted(self.units, key=len, reverse=True)
                             if u != "€")
+        self.per = re.compile(r"/(" + "|".join(PER_UNITS) + r")(?![\w%°/:])")
         acr = "|".join(sorted(set(ACRONYM_WORD) | ACRONYM_SPELLED, key=len, reverse=True))
         self.passes = [
             (re.compile(rf"(?<![{LETTER}\d])({acr})(?::([{LOWER}]+))?(?![{LETTER}\d])"), self._acronym),
@@ -108,8 +115,9 @@ class Avaaja:
             (re.compile(rf"(?<![\w+])(\+358{SP}?|0)(\d{{1,3}})((?:[ -]\d{{2,7}}){{1,3}})(?![\d,]|\.\d)"),
              self._phone),
             (re.compile(r"(?<![\d.,])(\d{1,2})\.(\d{1,2})\.(\d{4})?(?![\d:]|\.\d)"), self._date),
-            # Windowsin pitkä päiväys (NVDA+F12 kahdesti): "25. lokakuuta 2026".
-            (re.compile(rf"{NB}(\d{{1,2}})\.{SP}+({'|'.join(MONTHS)})(?:{SP}+(\d{{4}}))?(?![\w])", re.I),
+            # Windowsin pitkä päiväys (NVDA+F12 kahdesti): "25. lokakuuta 2026". Piste voi puuttua
+            # ("perjantaina 10 heinäkuuta" Ilmatieteen laitoksen sivulla): kuukauden edellä luku on silti päiväys.
+            (re.compile(rf"{NB}(\d{{1,2}})\.?{SP}+({'|'.join(MONTHS)})(?:{SP}+(\d{{4}}))?(?![\w])", re.I),
              self._date_named),
             (re.compile(r"\b(kello)\s+(\d{1,2})(?:[.:](\d{2}))?"
                         r"(?:\s?[–—-]\s?(\d{1,2})(?:[.:](\d{2}))?)?(?![\d:]|[.,]\d)", re.I),
@@ -407,7 +415,15 @@ class Avaaja:
             parts.append("yksi euro" if e == 1 else f"{w} euroa")
         if c:
             parts.append("yksi sentti" if c == 1 else f"{self.card(c)} senttiä")
-        return self._sign(sign) + " ".join(parts)
+        tail, consumed = self._per(text, m.end())
+        return (self._sign(sign) + " ".join(parts) + tail, consumed)
+
+    def _per(self, text: str, end: int) -> tuple[str, int]:
+        """Per-yksikkö luvun ja yksikön perässä (€/kk -> " kuukaudessa"), muuten ("", 0)."""
+        p = self.per.match(text[end:])
+        if not p:
+            return ("", 0)
+        return (" " + self.words[self.units[p.group(1)]]["Sg+Ine"], p.end())
 
     def _range(self, m: re.Match, text: str) -> str | None:
         a, b = int(m.group(1)), int(m.group(2))
@@ -437,16 +453,19 @@ class Avaaja:
         else:
             case = "Sg+Nom"
         n = self._int(whole)
+        tail, consumed = "", 0
         if case in ("Sg+Nom", "Sg+Par"):
             num = self.decimal(n, frac) if frac else self.card(n)
             noun = par["Sg+Nom"] if n == 1 and not frac else par["Sg+Par"]
+            if not suffix:
+                tail, consumed = self._per(text, m.end())
         else:
             if frac:
                 return None    # 3,5 metrin: osien taivutusta ei ole todennettu
             num, noun = self.card(n, case), par.get(case)
         if not (num and noun):
             return None
-        return f"{self._sign(sign)}{num} {noun}"
+        return (f"{self._sign(sign)}{num} {noun}{tail}", consumed)
 
     @staticmethod
     def _suffix_case(suffix: str, paradigm: dict) -> str | None:
@@ -481,7 +500,7 @@ class Avaaja:
     def _ordinal(self, m: re.Match, text: str) -> str | None:
         n = int(m.group(1))
         # Kuukauden edellä luku on päiväys, jonka _date_named on jo ratkaissut tai hylännyt.
-        if re.match(rf"{SP}+(?:{'|'.join(MONTHS)})(?![\w])", text[m.end():], re.I):
+        if MONTH_AFTER.match(text[m.end():]):
             return None
         kind, readings = self.context(text, m.end())
         if kind != "nomini":
@@ -504,6 +523,9 @@ class Avaaja:
         if len(digits) > 1 and digits.startswith("0"):
             return None
         n = int(digits)
+        # Kuukauden edellä luku on päiväys. Jos _date_named hylkäsi sen (32 heinäkuuta), ei arvata.
+        if MONTH_AFTER.match(text[m.end():]):
+            return None
         case = self.cardinal_case(n, text, m.start(), m.end())
         if case is None:
             return None

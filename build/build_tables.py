@@ -44,7 +44,7 @@ UNITS = {"km": "kilometri", "m": "metri", "cm": "senttimetri", "mm": "millimetri
          "kg": "kilogramma", "g": "gramma", "l": "litra", "dl": "desilitra",
          "h": "tunti", "min": "minuutti", "s": "sekunti", "%": "prosentti",
          "°C": "aste", "°": "aste", "kpl": "kappale", "€": "euro", "snt": "sentti",
-         "kWh": "kilowattitunti"}
+         "kWh": "kilowattitunti", "vrk": "vuorokausi", "kk": "kuukausi"}
 # Muut taivutettavat apusanat.
 WORDS = ["euro", "sentti", "sivu", "kello", "prosentti", "nolla"]
 
@@ -100,7 +100,8 @@ def build_numerals() -> dict:
         "units": {u: l for u, l in UNITS.items()},
         # Vain yksikkö: monikossa generaattori antaa ensimmäisenä arkaaisia
         # rinnakkaismuotoja (astehitten), eikä kerros tarvitse niitä.
-        "words": {l: paradigm(l, "N", ["Sg"]) for l in set(UNITS.values()) | set(WORDS)},
+        # Järjestetty, jotta uudelleenrakennus ei sekoita järjestystä (diff näyttää vain muutokset).
+        "words": {l: paradigm(l, "N", ["Sg"]) for l in sorted(set(UNITS.values()) | set(WORDS))},
         "partitiiviverbit": sorted({f for v in PARTITIVE_VERBS for t in VERB_TAGS
                                     if (f := gen(f"{v}+V+{t}"))}),
         "mittasanat": sorted({f for n in MEASURE_NOUNS if (f := gen(f"{n}+N+Sg+Par"))}),

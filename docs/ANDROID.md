@@ -1,8 +1,8 @@
 # Lausu Androidille
 
 Tila 25.10.2026: tie on auki. Koe on ajettu mittausohjelmalla ja TalkBackilla (ks. Kokeen tulos).
-Kerros on portattu Kotlinille ja kytketty moottoriin (ks. Porttaus). Lausun TalkBack-ajo
-puuttuu.
+Kerros on portattu Kotlinille ja kytketty moottoriin (ks. Porttaus). Lausu on ajettu TalkBackilla
+kerran, ja sen havainnoista on korjattu kolme (ks. Lausun TalkBack-ajo).
 
 ## Miksi
 
@@ -151,3 +151,37 @@ käynnistyessään (Pixelillä 31 ms) ja avaa vain suomenkieliset lausumat. Jos 
 teksti kulkee ennallaan. Kehitysversio kirjaa lausuman tekstin ennen ja jälkeen avauksen
 lokiin (tagi `Lausu`). Julkaisuversio ei kirjaa, koska ruudunlukijan teksti on käyttäjän dataa.
 Laitetarkistus ajetaan `Tarkistus`-aktiviteetilla adb:llä, ja ohje on sen tiedostossa.
+
+## Lausun TalkBack-ajo (25.10.2026)
+
+Tommi käytti TalkBackia Pixelissä Lausu-moottorilla uutissivuilla, Ilmatieteen laitoksen
+sääsivulla ja verkkokaupassa. Moottorin lokiin tuli 164 lausumaa. Ensimmäisen äänipalan mediaani
+oli 58 ms ja suurin 267 ms (115 lausumaa, joissa tuli ääntä). Luku mitataan moottorin sisällä
+lausuman saapumisesta, ja se sisältää avauksen.
+
+Tommin kuulohavainnot ja mitä niille tehtiin:
+
+- **vrk ja kk** jäivät avaamatta ("15 vrk", "12 kk", "3 €/kk"). Ne on lisätty yksiköiksi
+  (`build/build_tables.py`), eli "12 kk" kuuluu nyt "kaksitoista kuukautta". Lisäksi aikayksikkö
+  jakoviivan jälkeen luetaan inessiivissä: "3 €/kk" kuuluu "kolme euroa kuukaudessa" ja "50 km/h"
+  kuuluu "viisikymmentä kilometriä tunnissa". Muu jakoviiva jää ennalleen ("3 €/kpl").
+- **Sääsivun päiväys.** TalkBack sai tekstin "perjantaina 10 heinäkuuta" ilman pistettä, ja Lausu
+  avasi sen perusluvuksi ("kymmenen heinäkuuta"). Kuukauden nimen edellä luku luetaan nyt
+  päiväykseksi myös ilman pistettä ("kymmenes heinäkuuta"). Jos päiväys ei kelpaa (32 heinäkuuta),
+  luku jää ennalleen eikä sitä lueta lukumääräksi.
+
+Muutokset ovat molemmissa toteutuksissa, ja niillä on testit sekä avattavalle tapaukselle että
+tapaukselle, jota sääntö ei saa koskea (`tests/tapaukset.txt`, 132 tapausta). Vertailukorpus
+laajennettiin uusiin kuvioihin, ja 30 000 syötettä antoi saman tuloksen Pythonissa, JVM:llä ja
+Pixelillä.
+
+Lokista näkyi myös kohtia, joita Tommi ei maininnut. Niitä ei ole korjattu:
+
+- **Jakoviivalla merkitty "x / y" avautuu puoliksi.** "2/5 ryhmässä" tuli muotoon "kaksi/5
+  ryhmässä", ja "viikolla 43/2026" tuli muotoon "viikolla neljäkymmentäkolme/2026". Jälkimmäinen
+  luku jää avaamatta, koska luvun alun sääntö ei salli edellä kauttaviivaa. Tämä liittyy
+  Superjatsin SJ-5-esimerkkiin, jossa "1/3" kuului kolmasosana.
+- **Kellonaika ilman sanaa "klo"** ("11:47", "22:44") jää ennalleen, ja Googlen ääni lukee sen
+  itse.
+- **Hinta kahdessa osassa.** Verkkokauppa antoi hinnan TalkBackille kahtena kohtana ("649," ja
+  "00"), joten ensimmäinen avautui pilkun kanssa. Tämä on sivun rakenne eikä kerroksen vika.

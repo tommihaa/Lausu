@@ -29,8 +29,11 @@ KUVIOT = [
     "{n} %", "{n}%:{suf}", "{n} °C", "klo {h}", "klo {h}.{mi}", "klo {h}–{h2}", "kello {h}:{mi}",
     "{d}.{mo}.", "{d}.{mo}.{y}", "{d}. lokakuuta", "{d}. lokakuuta {y}", "040 123 4567",
     "+358 40 123 4567", "n. {n}", "s. {n}", "v. {y}", "esim.", "Esim.", "jne.", "YLE:{suf}",
-    "EU:{suf}", "USA", "NATO", "{n} / {m}",
+    "EU:{suf}", "USA", "NATO", "{n} / {m}", "{n}/{m}",
+    "{n} €/{per}", "{n},50 €/{per}", "{n} km/{per}", "{n} m/{per}", "{n} vrk", "{n} kk:{suf}",
+    "{d} heinäkuuta", "{d} lokakuuta {y}", "{n} heinäkuuta",
 ]
+PER = ["kk", "vrk", "h", "min", "s", "kpl", "snt", "kk:n", "hh"]
 SUFFIKSIT = ["n", "a", "ä", "ta", "ttä", "een", "ään", "aan", "seen", "lle", "lla", "ssa", "sta",
              "ksi", "na", "s", "nnen", "nteen", "sen", "luvulla", "vuotias", "x"]
 ALUT = ["", "", "Hän näki", "En nähnyt", "Rakastan", "Odotin", "Ostin", "Tänään on", "Sivu",
@@ -55,7 +58,7 @@ def main() -> None:
     syotteet = [r.split("\t", 1)[1] for r in (HERE / "lauseet.txt").read_text(encoding="utf-8").splitlines() if "\t" in r]
     while len(syotteet) < maara:
         kuvio = rnd.choice(KUVIOT).format(
-            n=rnd.choice(LUVUT), m=rnd.choice(LUVUT), suf=rnd.choice(SUFFIKSIT),
+            n=rnd.choice(LUVUT), m=rnd.choice(LUVUT), suf=rnd.choice(SUFFIKSIT), per=rnd.choice(PER),
             h=rnd.randint(0, 30), h2=rnd.randint(0, 30), mi=f"{rnd.randint(0, 70):02d}",
             d=rnd.randint(0, 35), mo=rnd.randint(0, 14), y=rnd.choice(["1990", "2026", "0000", "12345"]))
         osat = [rnd.choice(ALUT), kuvio]

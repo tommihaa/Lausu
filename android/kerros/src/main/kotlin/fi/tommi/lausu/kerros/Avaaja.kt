@@ -70,13 +70,14 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
             passi(re("""(?<![$W.])($abbrAlt)(?![$W.])""", ignoreCase = true), { m, t -> abbr(m, t)?.let(::Korvaus) }),
             passi(re("""(?<![$W+])(\+358$SP?|0)($D{1,3})((?:[ -]$D{2,7}){1,3})(?![$D,]|\.$D)"""), { m, _ -> phone(m)?.let(::Korvaus) }),
             passi(re("""(?<![$D.,])($D{1,2})\.($D{1,2})\.($D{4})?(?![$D:]|\.$D)"""), { m, t -> date(m, t)?.let(::Korvaus) }),
-            // Windowsin pitkä päiväys (NVDA+F12 kahdesti): "25. lokakuuta 2026".
-            passi(re("""$NB($D{1,2})\.$SP+($months)(?:$SP+($D{4}))?(?![$W])""", ignoreCase = true), { m, _ -> dateNamed(m)?.let(::Korvaus) }),
+            // Windowsin pitkä päiväys (NVDA+F12 kahdesti): "25. lokakuuta 2026". Piste voi puuttua
+            // ("perjantaina 10 heinäkuuta" Ilmatieteen laitoksen sivulla): kuukauden edellä luku on silti päiväys.
+            passi(re("""$NB($D{1,2})\.?$SP+($months)(?:$SP+($D{4}))?(?![$W])""", ignoreCase = true), { m, _ -> dateNamed(m)?.let(::Korvaus) }),
             passi(re("""(?<![$W])(kello)$S+($D{1,2})(?:[.:]($D{2}))?(?:$S?[–—-]$S?($D{1,2})(?:[.:]($D{2}))?)?(?![$D:]|[.,]$D)""",
                 ignoreCase = true), { m, _ -> time(m)?.let(::Korvaus) }),
-            passi(re("""$NB($MINUS)?($INT)(?:,($D{2}|-))?$SP?€(?![$W:])"""), { m, _ -> money(m)?.let(::Korvaus) }),
+            passi(re("""$NB($MINUS)?($INT)(?:,($D{2}|-))?$SP?€(?![$W:])"""), ::money),
             passi(re("""$NB($D+)(?:$SP?[–—]$SP?|-)($D+)(?![$D,:]|\.$D)"""), ::range),
-            passi(re("""$NB($MINUS)?($INT)(?:,($D+))?$SP?($unitAltIlmanEuroa)(?::([$LOWER]+))?(?![$W%°])"""), { m, _ -> unit(m)?.let(::Korvaus) }),
+            passi(re("""$NB($MINUS)?($INT)(?:,($D+))?$SP?($unitAltIlmanEuroa)(?::([$LOWER]+))?(?![$W%°])"""), ::unit),
             passi(re("""$NB($INT)-([$LOWER]+)"""), { m, _ -> hyphen(m)?.let(::Korvaus) }),
             passi(re("""$NB($INT):([$LOWER]+)(?![$W])"""), { m, _ -> colon(m)?.let(::Korvaus) }),
             passi(re("""$NB($D+)\.(?=$SP+[$LOWER])"""), { m, t -> ordinalPass(m, t)?.let(::Korvaus) }),
@@ -155,6 +156,11 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
         private val LUKU_PERASSA = re("""$SP*$MINUS?$D""")
         private val VUOSI_PERASSA = re("""$SP*$D{4}(?!$D)""")
         private val ISO_SANA_PERASSA = re("""$S+[A-ZÅÄÖ]""")
+        // Per-yksikkö: 3 €/kk, 50 km/h. Jakoviivan jälkeinen aikayksikkö luetaan inessiivissä
+        // (kolme euroa kuukaudessa). Muut jakoviivat jäävät ennalleen (3 €/kpl).
+        private val PER_UNITS = listOf("vrk", "min", "kk", "h", "s")
+        private val PER = re("""/(${PER_UNITS.joinToString("|")})(?![$W%°/:])""")
+        // Kuukauden nimi luvun perässä: luku on päiväys eikä lukumäärä.
         private val KUUKAUSI_PERASSA = re("""$SP+(?:${MONTHS.joinToString("|")})(?![$W])""", ignoreCase = true)
 
         private const val BILJOONA = 1_000_000_000_000L
@@ -450,7 +456,7 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
         return "$word $a $b"
     }
 
-    private fun money(m: MatchResult): String? {
+    private fun money(m: MatchResult, text: String): Korvaus? {
         val e = luku(m.group(2))
         val cents = m.group(3)
         val c = if (cents == null || cents == "-") 0L else luku(cents)
@@ -460,7 +466,14 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
             parts += if (e == 1L) "yksi euro" else "$w euroa"
         }
         if (c > 0) parts += if (c == 1L) "yksi sentti" else "${card(c) ?: return null} senttiä"
-        return sign(m.group(1)) + parts.joinToString(" ")
+        val (tail, consumed) = per(text, m.end())
+        return Korvaus(sign(m.group(1)) + parts.joinToString(" ") + tail, consumed)
+    }
+
+    /** Per-yksikkö luvun ja yksikön perässä (€/kk -> " kuukaudessa"), muuten ("", 0). */
+    private fun per(text: String, end: Int): Pair<String, Int> {
+        val p = PER.alusta(text.substring(end)) ?: return "" to 0
+        return " " + words.getValue(units.getValue(p.group(1))).getValue("Sg+Ine") to p.end()
     }
 
     private fun range(m: MatchResult, text: String): Korvaus? {
@@ -482,7 +495,7 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
         return Korvaus("$x $y$tail", consumed)
     }
 
-    private fun unit(m: MatchResult): String? {
+    private fun unit(m: MatchResult, text: String): Korvaus? {
         val frac = m.group(3)
         val par = words.getValue(units.getValue(m.group(4)))
         val suffix = m.group(5)
@@ -490,16 +503,18 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
         val n = luku(m.group(2))
         val num: String?
         val noun: String?
+        var tail = "" to 0
         if (case == "Sg+Nom" || case == "Sg+Par") {
             num = if (frac != null) decimal(n, frac) else card(n)
             noun = if (n == 1L && frac == null) par["Sg+Nom"] else par["Sg+Par"]
+            if (suffix == null) tail = per(text, m.end())
         } else {
             if (frac != null) return null // 3,5 metrin: osien taivutusta ei ole todennettu
             num = card(n, case)
             noun = par[case]
         }
         if (num.isNullOrEmpty() || noun.isNullOrEmpty()) return null
-        return "${sign(m.group(1))}$num $noun"
+        return Korvaus("${sign(m.group(1))}$num $noun${tail.first}", tail.second)
     }
 
     private fun suffixCase(suffix: String, paradigm: Map<String, String>): String? {
@@ -554,6 +569,8 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
         val digits = m.group(2).filter { it.isDigit() }
         if (digits.length > 1 && digits.startsWith("0")) return null
         val n = luku(digits)
+        // Kuukauden edellä luku on päiväys. Jos dateNamed hylkäsi sen (32 heinäkuuta), ei arvata.
+        if (KUUKAUSI_PERASSA.alusta(text.substring(m.end())) != null) return null
         val case = cardinalCase(n, text, m.start(), m.end()) ?: return null
         val word = card(n, case)
         if (word.isNullOrEmpty()) return null
