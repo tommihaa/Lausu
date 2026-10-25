@@ -108,6 +108,9 @@ class Avaaja:
             (re.compile(rf"(?<![\w+])(\+358{SP}?|0)(\d{{1,3}})((?:[ -]\d{{2,7}}){{1,3}})(?![\d,]|\.\d)"),
              self._phone),
             (re.compile(r"(?<![\d.,])(\d{1,2})\.(\d{1,2})\.(\d{4})?(?![\d:]|\.\d)"), self._date),
+            # Windowsin pitkä päiväys (NVDA+F12 kahdesti): "25. lokakuuta 2026".
+            (re.compile(rf"{NB}(\d{{1,2}})\.{SP}+({'|'.join(MONTHS)})(?:{SP}+(\d{{4}}))?(?![\w])", re.I),
+             self._date_named),
             (re.compile(r"\b(kello)\s+(\d{1,2})(?:[.:](\d{2}))?"
                         r"(?:\s?[–—-]\s?(\d{1,2})(?:[.:](\d{2}))?)?(?![\d:]|[.,]\d)", re.I),
              self._time),
@@ -360,6 +363,17 @@ class Avaaja:
                 out += "."
         return out
 
+    def _date_named(self, m: re.Match, text: str) -> str | None:
+        # Päivä on perusmuodossa kuten numeropäiväyksessä (kahdeskymmenesviides lokakuuta).
+        # Ilman tätä järjestyslukusääntö taivuttaisi sen kuukauden partitiivin mukaan.
+        d, month, y = int(m.group(1)), m.group(2), m.group(3)
+        if not 1 <= d <= 31:
+            return None
+        out = f"{self.ordinal(d)} {month}"
+        if y:
+            out += " " + self.card(int(y))
+        return out
+
     def _time(self, m: re.Match, text: str) -> str | None:
         word, h1, m1, h2, m2 = m.groups()
         def clock(h, mi, case):
@@ -463,6 +477,9 @@ class Avaaja:
 
     def _ordinal(self, m: re.Match, text: str) -> str | None:
         n = int(m.group(1))
+        # Kuukauden edellä luku on päiväys, jonka _date_named on jo ratkaissut tai hylännyt.
+        if re.match(rf"{SP}+(?:{'|'.join(MONTHS)})(?![\w])", text[m.end():], re.I):
+            return None
         kind, readings = self.context(text, m.end())
         if kind != "nomini":
             return None

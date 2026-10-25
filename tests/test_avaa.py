@@ -88,6 +88,10 @@ CASES = [
     ("5–10 km", "viidestä kymmeneen kilometriä"), ("2020–2026", "kahdestatuhannesta kahdestakymmenestä kahteentuhanteen kahteenkymmeneenkuuteen"),
     ("5–10 metrin", "5–10 metrin"),
     ("1.5.", "ensimmäinen toukokuuta."), ("32.13.2026", "32.13.2026"),
+    ("sunnuntai 25. lokakuuta 2026",                     # NVDA+F12 kahdesti
+     "sunnuntai kahdeskymmenesviides lokakuuta kaksituhatta kaksikymmentäkuusi"),
+    ("1. toukokuuta", "ensimmäinen toukokuuta"), ("32. lokakuuta", "32. lokakuuta"),
+    ("2. kerroksen", "toisen kerroksen"),                # muu sana: järjestyslukusääntö kuten ennen
     ("klo 9", "kello yhdeksän"), ("klo 9.05", "kello yhdeksän nolla viisi"),
     ("klo 10–12", "kello kymmenestä kahteentoista"), ("klo 14.00", "kello neljätoista"),
     ("+358 40 123 4567", "plus kolme viisi kahdeksan, neljä nolla, yksi kaksi kolme, neljä viisi kuusi seitsemän"),
