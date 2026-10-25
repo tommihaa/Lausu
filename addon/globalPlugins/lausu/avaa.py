@@ -100,6 +100,11 @@ ID_WORDS = ["paikka", "paikan", "paikkaa", "paikassa", "paikasta", "paikkaan", "
             "kohta", "kohdan", "kohtaa", "kohdassa", "kohdasta", "kohtaan", "kohdalla", "kohdalta",
             "kohdalle", "kohdaksi", "kohtana"]
 ID_BEFORE = re.compile(rf"(?<![{LETTER}])(?:{'|'.join(ID_WORDS)}){SP}+$", re.I)
+# Tuoteviittaus luvun edellä: tuotenumero ei ole määrä, joten se jää aina ennalleen
+# (Tuote 1011476, Tuotenumero: 1011479, #1011476). Tommin päätös 25.10.2026.
+PRODUCT_WORDS = ["tuote", "tuotteen", "tuotenumero", "tuotenumeron", "tuotekoodi", "tuotekoodin",
+                 "tuotenro", "sku", "ean"]
+PRODUCT_BEFORE = re.compile(rf"(?:#|(?<![{LETTER}])(?:{'|'.join(PRODUCT_WORDS)}):?{SP}+)$", re.I)
 
 # Kaksoispistepäätteen sijat yleisimmästä alkaen. Pääte hyväksytään vain, jos
 # generoitu muoto todella päättyy siihen (5:ään hylätään, koska viiteen ≠ -ään).
@@ -122,6 +127,12 @@ class Avaaja:
         self.measure_words = frozenset(d["mittasanat"])
         # Sijataulukko pakattuna sanapuuna (1,8 Mt levyllä, noin 5 Mt muistissa).
         self.sijat = Sanapuu.lataa(data_dir / "sijat.dawg")
+        # Miljoona ja miljardi puuttuvat sijataulukosta (Itun sanasto), joten niiden muodot
+        # luetaan lukusanataulukosta: 5,6 miljoonaa -> viisi pilkku kuusi miljoonaa.
+        self.big_words: dict[str, set] = {}
+        for n in ("1000000", "1000000000"):
+            for key, form in d["card"][n].items():
+                self.big_words.setdefault(form, set()).add(tuple(key.split("+")))
         unit_alt = "|".join(re.escape(u) for u in sorted(self.units, key=len, reverse=True)
                             if u != "€")
         self.per = re.compile(r"/(" + "|".join(PER_UNITS) + r")(?![\w%°/:])")
@@ -283,6 +294,8 @@ class Avaaja:
             return ("tuntematon", None)
         mask = self.sijat.get(word)
         if mask is None:
+            if word in self.big_words:
+                return ("nomini", set(self.big_words[word]))
             return ("tuntematon", None)
         readings = {(NUMS[b // 14], CASES[b % 14]) for b in range(28) if mask >> b & 1}
         return ("nomini", readings) if readings else ("ei-nomini", None)
@@ -565,6 +578,8 @@ class Avaaja:
         n = int(digits)
         # Kuukauden edellä luku on päiväys. Jos _date_named hylkäsi sen (32 heinäkuuta), ei arvata.
         if MONTH_AFTER.match(text[m.end():]):
+            return None
+        if PRODUCT_BEFORE.search(text[:m.start()]):
             return None
         # Tunnistesanan perässä nominin edellä luku jää ennalleen. Muualla (rivi 2, sivulla 3 kerrotaan)
         # se luetaan perusmuodossa kuten ennenkin.

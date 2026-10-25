@@ -266,3 +266,20 @@ Paikkakunnan 5 kaupunkia	Paikkakunnan viisi kaupunkia	# yhdyssana ei ole tunnist
 12 000,75	kaksitoistatuhatta pilkku seitsemänkymmentäviisi
 Hinta 1 099,00 €.	Hinta tuhat yhdeksänkymmentäyhdeksän euroa.	# euromerkin kanssa kuten ennen
 1 099,5 talossa	1 099,5 talossa	# desimaaliluku muussa kuin perusmuodossa jää ennalleen kuten ennen
+# Miljoona ja miljardi luvun perässä (NVDA-selaintila-ajo 25.10.2026, Wikipedia): ennen tuntematon sana
+Suomessa on 5,6 miljoonaa asukasta.	Suomessa on viisi pilkku kuusi miljoonaa asukasta.	# ennen ennalleen
+5 miljoonaa	viisi miljoonaa
+1 miljoona	yksi miljoona
+2 miljoonalla eurolla	kahdella miljoonalla eurolla
+3 miljardia	kolme miljardia
+10 miljoonan budjetti	kymmenen miljoonan budjetti
+1,5 miljoonan	1,5 miljoonan	# desimaaliluku muussa kuin perusmuodossa jää ennalleen kuten ennen
+# Tuoteviittaus luvun edellä jättää luvun aina ennalleen (Verkkokauppa.com 25.10.2026, Tommin päätös)
+Tuote 1011476	Tuote 1011476	# ennen "Tuote miljoona yksitoistatuhatta…"
+Tuotenumero: 1011479	Tuotenumero: 1011479
+Tuotteen 1011476 hinta	Tuotteen 1011476 hinta
+#1011476	#1011476
+tilaus #12345	tilaus #12345
+EAN 6430012345678	EAN 6430012345678
+Ostin 3 tuotetta.	Ostin kolme tuotetta.	# tuote luvun perässä ei ole tuoteviittaus
+nro 5	numero viisi	# nro avataan kuten ennen

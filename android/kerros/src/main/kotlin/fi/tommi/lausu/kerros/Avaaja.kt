@@ -34,6 +34,7 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
     private val words: Map<String, Map<String, String>>
     private val partitiveVerbs: Set<String>
     private val measureWords: Set<String>
+    private val isotLuvut: Map<String, Set<Pair<String, String>>>
     private val sijat = Sanapuu.lataa(sijatDawg)
     private val unitAlt: String
     private val passes: List<Pair<Pattern, (MatchResult, String) -> Korvaus?>>
@@ -54,6 +55,12 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
         partitiveVerbs = (d["partitiiviverbit"] as List<String>).toSet()
         @Suppress("UNCHECKED_CAST")
         measureWords = (d["mittasanat"] as List<String>).toSet()
+        // Miljoona ja miljardi puuttuvat sijataulukosta (Itun sanasto), joten niiden muodot
+        // luetaan lukusanataulukosta: 5,6 miljoonaa -> viisi pilkku kuusi miljoonaa.
+        isotLuvut = listOf(1_000_000L, 1_000_000_000L)
+            .flatMap { n -> cardAtoms.getValue(n).entries }
+            .groupBy({ it.value }, { it.key.substringBefore('+') to it.key.substringAfter('+') })
+            .mapValues { it.value.toSet() }
 
         unitAlt = units.keys.sortedByDescending { it.length }.joinToString("|") { Regex.escape(it) }
         val unitAltIlmanEuroa = units.keys.filter { it != "€" }.sortedByDescending { it.length }
@@ -183,6 +190,13 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
             "kohdalle", "kohdaksi", "kohtana",
         )
         private val TUNNISTE_EDELLA = re("""(?<![$LETTER])(?:${ID_WORDS.joinToString("|")})$SP+$""", ignoreCase = true)
+        // Tuoteviittaus luvun edellä: tuotenumero ei ole määrä, joten se jää aina ennalleen
+        // (Tuote 1011476, Tuotenumero: 1011479, #1011476). Tommin päätös 25.10.2026.
+        private val PRODUCT_WORDS = listOf(
+            "tuote", "tuotteen", "tuotenumero", "tuotenumeron", "tuotekoodi", "tuotekoodin",
+            "tuotenro", "sku", "ean",
+        )
+        private val TUOTE_EDELLA = re("""(?:#|(?<![$LETTER])(?:${PRODUCT_WORDS.joinToString("|")}):?$SP+)$""", ignoreCase = true)
 
         private const val BILJOONA = 1_000_000_000_000L
 
@@ -335,7 +349,8 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
             return Konteksti("tuntematon")
         }
         if (word[0].isUpperCase()) return Konteksti("tuntematon")
-        val mask = sijat.get(word) ?: return Konteksti("tuntematon")
+        val mask = sijat.get(word)
+            ?: return isotLuvut[word]?.let { Konteksti("nomini", it) } ?: Konteksti("tuntematon")
         val readings = (0 until 28).filter { mask shr it and 1 == 1 }
             .map { NUMS[it / 14] to CASES[it % 14] }.toSet()
         return if (readings.isNotEmpty()) Konteksti("nomini", readings) else Konteksti("ei-nomini")
@@ -611,6 +626,7 @@ class Avaaja(lukusanatJson: String, sijatDawg: ByteArray) {
         val n = luku(digits)
         // Kuukauden edellä luku on päiväys. Jos dateNamed hylkäsi sen (32 heinäkuuta), ei arvata.
         if (KUUKAUSI_PERASSA.alusta(text.substring(m.end())) != null) return null
+        if (TUOTE_EDELLA.matcher(text.substring(0, m.start())).find()) return null
         // Tunnistesanan perässä nominin edellä luku jää ennalleen. Muualla (rivi 2, sivulla 3 kerrotaan)
         // se luetaan perusmuodossa kuten ennenkin.
         if (TUNNISTE_EDELLA.matcher(text.substring(0, m.start())).find() &&
