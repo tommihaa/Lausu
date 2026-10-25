@@ -335,3 +335,40 @@ siis ole vielä kuunneltu luontevassa lauseessa.
 
 **Yhdysmerkki:** kumpikaan lukija ei lukenut sitä viivana. Google lisäsi kuitenkin ylimääräisen
 "ee":n, eli yhdysmerkillinen kirjainjono luetaan sillä väärin. Syytä ei ole selvitetty.
+
+### Toinen kierros (Tommi 25.10.2026)
+
+Partitiivi kuunneltiin lauseessa, jossa se on paikallaan. EU-maat kuunneltiin kolmena
+valmiiksi auki kirjoitettuna muunnelmana Lausun kautta, ja alkuperäinen teksti kuunneltiin
+Googlella ja Samsungilla ilman Lausua. Kirjatut kuulohavainnot ovat Tommin.
+
+| Lause | Lausu (Google) | Lausu (Samsung) | Google suoraan | Samsung suoraan |
+|---|---|---|---|---|
+| Ministeri kritisoi THL:tä. | "tee hoo ällää" | "tee hoo ällää" | "tee hoo ällää" | "tee hoo ältä" |
+| EU-maat sopivat asiasta. | (1. kierros) "ee eeuu-maat" | (1. kierros) "eeuu-maat" | oikein | oikein |
+| ee uu maat sopivat asiasta. | väärin: "ee ee uu maat" | väärin: "ee uuuu maat" | | |
+| ee-uu-maat sopivat asiasta. | oikein: "ee uu maat" | väärin: "ee uuu maat" | | |
+| eeuu-maat sopivat asiasta. | väärin: "ee maat" | oikein: "eu maat" | | |
+
+**Partitiivi:** Tommin mukaan "tee hoo ällää" on lauseessa luonteva. Partitiivisääntö on näin
+kuultu oikein kummallakin lukijalla. Google lukee muodon itsekin oikein, Samsung ei ("ältä").
+Tommi ei tiennyt, miten muoto pitäisi kirjoittaa. Kerros lukee kirjoitetut muodot THL:tä,
+THL:ta ja THL:ää samaan muotoon "ällää" (tests/tapaukset.txt).
+
+**EU-maat:** molemmat moottorit lukivat alkuperäisen tekstin "EU-maat" oikein ilman Lausua.
+Mikään auki kirjoitettu muoto ei kuulunut oikein kummallakin lukijalla, ja kerroksen nykyinen
+muoto "ee uu-maat" kuului Googlella väärin. Samsung tuotti tavulleen saman äänen muodoille
+"ee uu-maat", "ee uu maat" ja "ee-uu-maat". Havaintojen perusteella yhdysmerkillinen
+kirjainlyhenne kannattaisi jättää ennalleen. Muutos odottaa Tommin päätöstä. Kuultu on vain
+EU, eikä NVDA:n ääniä ole kuunneltu tällä muodolla.
+
+**Samsungin äänenvoimakkuus:** Tommi kuuli Samsungin edelleen hiljaisempana ja hieman
+epäselvänä. Mittaus tukee havaintoa. Puhenäytteiden (näytteet, joiden itseisarvo on yli 300)
+keskimääräinen RMS oli Samsungilla −27,5 dBFS ja Googlella −16,8 dBFS, eli ero on noin
+10,5 dB. Ero on sama Lausun kanssa ja ilman sitä, joten se tulee Samsungin moottorista.
+Ajatus: Lausu voisi vahvistaa Samsungin ääntä välityksessä (huippu 6 932 jättää tilaa noin
+kolminkertaiselle vahvistukselle). Ei toteutettu.
+
+**Sivuhavainto:** Googlen puhepalvelu jumittui äänityksen aikana. Se ei vastannut edes ilman
+Lausua. Palvelun pysäytys (`am force-stop com.google.android.tts`) ja sitä seurannut
+uudelleenkäynnistys korjasivat sen. Syytä ei selvitetty.
