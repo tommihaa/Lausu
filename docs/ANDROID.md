@@ -206,4 +206,52 @@ lisäarvo riippuu siitä. Samat viisi lausetta, joissa on 13 kuulohavaintoa
 
 Äänet tehtiin `Tarkistus`-aktiviteetin äänitystilalla (`synthesizeToFile`, ohje tiedostossa).
 Äänet ja arviot ovat tulossivulla https://claude.ai/artifact/QTE8FTR4Yk2RKiKhZcKWJV
-(kokoelma `android`, vapaa huomio `huomiot/android`). Tulos kirjataan tähän kuuntelun jälkeen.
+(kokoelma `android`, vapaa huomio `huomiot/android`).
+
+### Tulos (Tommi 25.10.2026)
+
+Oikein merkityt kohdat 13:sta. Luku laskee Tommin oikein-merkinnät tulossivulta.
+
+| Moottori | Oikein | Osittain | Väärin | Merkitsemättä |
+|---|---|---|---|---|
+| Google suoraan | 10 | 1 | 2 | 0 |
+| Lausu (Google) | 12 | 0 | 0 | 1 |
+| Samsung suoraan | 4 | 0 | 8 | 1 |
+
+Merkitsemättömät on luettu kirjatusta kuulohavainnosta. Lausun lyhennekohta kuului odotetussa
+muodossa ("noin viiden kilometrin", "katso sivu kaksitoista"). Samsungin järjestysluku kuului
+"toinen kerrokseen", joka on väärin. Näin luettuna Lausu on 13/13 ja Samsung 4/13.
+
+Kohdittain (kirjattu kuulohavainto, kun se on väärin tai poikkeava):
+
+| Havainto | Google suoraan | Lausu | Samsung suoraan |
+|---|---|---|---|
+| illatiivi 5:een | oikein | oikein | väärin: "viisieen" |
+| allatiivi 2:lle | oikein | oikein | väärin: "kaksi lle" |
+| vuosikymmen 1990-luvulla | oikein | oikein | oikein |
+| päiväys 25.10.2026 | oikein: "kahdeskymmenesviides kymmenettä…" | oikein | oikein |
+| kello klo 14.30 | oikein | oikein | oikein |
+| tuhannet 1 347 | oikein | oikein | väärin: "yksi kolmesataa…" |
+| raha 12,90 € | oikein: "…euroa ja yhdeksänkymmentä senttiä" | oikein | väärin: "kaksitoista pilkku yhdeksänkymmentä" |
+| prosentti 15 % | oikein | oikein | oikein |
+| puhelin 040 123 4567 | oikein | oikein | väärin: luettiin lukumäärinä ja järjestyslukuina |
+| järjestysluku 2. kerrokseen | väärin: "toinen kerrokseen" | oikein | (väärin) "toinen kerrokseen" |
+| miinus −3,5 | oikein | oikein | väärin: miinus puuttui |
+| väli 5–10 | väärin: "viidet viiva kymmenet" | oikein | väärin: "viisi kymmenen" |
+| lyhenne n. 5 km:n; s. 12 | osittain: "s." luettiin kirjaimena | (oikein) | väärin: lyhenteet sellaisinaan |
+
+Tommin huomio Samsungista: ääni on eri ja kuuluu hiljaisempana.
+
+**Mitä tämä kertoo:**
+
+- **Google taivuttaa jo itse suurimman osan.** Illatiivin, allatiivin, kellonajan, rahan ja
+  puhelinnumeron se lukee oikein ilman Lausua, vaikka NVDA:n äänet (Saga, Harri) lukivat ne
+  väärin. Lausun lisäarvo Googlen päällä on kolme kohtaa: järjestysluku, väli ja lyhenne "s.".
+  Päiväyksessä Lausu vaihtaa Googlen "kymmenettä" muotoon "lokakuuta", ja molemmat on merkitty
+  oikein.
+- **Lausu ei huonontanut yhtään kohtaa**, jonka Google luki oikein.
+- **Samsung on NVDA:n äänten tasoa** (4/13, kun Saga ja Harri olivat ennen avausta 4/13).
+  Kerroksesta olisi sille suurin hyöty, mutta Lausu välittää nyt vain Googlelle
+  (`LausuPalvelu.kt`, `GOOGLE`). Lausu+Samsungia ei siis ole kuultu.
+- Otos on viisi lausetta yhdellä Google-äänellä. Se ei kerro, miten Google lukee muut
+  kuviot (esim. sijamuodot muiden lukujen kanssa).
