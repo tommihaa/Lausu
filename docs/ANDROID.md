@@ -373,3 +373,34 @@ kolminkertaiselle vahvistukselle). Ei toteutettu.
 **Sivuhavainto:** Googlen puhepalvelu jumittui äänityksen aikana. Se ei vastannut edes ilman
 Lausua. Palvelun pysäytys (`am force-stop com.google.android.tts`) ja sitä seurannut
 uudelleenkäynnistys korjasivat sen. Syytä ei selvitetty.
+
+## Avoin koe: pelin oma teksti vai Lausu (kirjattu 27.10.2026)
+
+**Tila: odottaa Tommin aloitusta.** Tommi päätti 27.10.2026, ettei koetta tehdä nyt. Kirjattu,
+jotta se ei unohdu.
+
+**Kysymys (Tommi 27.10.2026):** kumpi kuulostaa TalkBackilla paremmalta, pelien omat
+TalkBackia varten kirjoitetut tekstit vai alkuperäinen teksti Lausun avaamana?
+
+**Clauden ennuste, kuuntelematta:** omissa peleissä oma teksti voittaa, koska tekijä tietää
+merkityksen. Esimerkiksi "Heitto 1/3" on pelissä "yksi kolmesta", mutta Lausu lukee sen "yksi
+kautta kolme" (Superjatsin SJ-5, ks. Lausun TalkBack-ajo). Muualla Lausu voittaa, koska pelin
+teksti koskee vain pelejä. Ratkaisut eivät kilpaile: auki kirjoitetussa tekstissä Lausulla ei
+pitäisi olla avattavaa. Sitä, ettei Lausu muuta auki kirjoitettua tekstiä huonommaksi, ei ole
+kuunneltu.
+
+**Koe:**
+
+1. Kerää Jaon ja Superjatsin ruudunlukijailmoituksista lauseet, joissa on lukuja tai lyhenteitä,
+   sekä vanhana tekstinä (ennen TalkBack-muutoksia, git-historiasta) että nykyisenä.
+   Lähteet: `Jako/src/locales/fi.js`, `Superjatsi/src/ui/locales/fi.ts` (SJ-5) ja kummankin
+   CHANGELOG.
+2. Äänitä kolme saraketta `Tarkistus`-äänitystilalla tabletilla tai Pixelillä, Googlen
+   oletusäänellä: vanha teksti Google suoraan, nykyinen teksti Google suoraan ja vanha teksti
+   Lausun kautta. Lisäksi neljäs sarake: nykyinen teksti Lausun kautta, joka todentaa, ettei
+   Lausu huononna auki kirjoitettua.
+3. Kokoa äänet tulossivulle (https://claude.ai/artifact/QTE8FTR4Yk2RKiKhZcKWJV, oma kokoelma)
+   Tommin arvioitavaksi oikein, osittain tai väärin.
+4. Kirjaa tulos tähän: oikein-luvut sarakkeittain ja mitä se kertoo.
+
+Lukijaksi palautetaan Google kokeen jälkeen, kuten aiemmissa kokeissa.
